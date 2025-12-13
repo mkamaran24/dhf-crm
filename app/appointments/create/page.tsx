@@ -24,7 +24,8 @@ export default function CreateAppointmentPage() {
         body: JSON.stringify(data),
         headers: { "Content-Type": "application/json" },
       });
-      router.push("/appointments");
+      router.push("/appointments?refresh=" + Date.now());
+      router.refresh();
     } catch (error) {
       console.error("Failed to create appointment", error);
     } finally {

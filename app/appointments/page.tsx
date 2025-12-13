@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo, useEffect, Suspense } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { Plus, Loader2, Calendar, List, Repeat, Download, FileText, FileSpreadsheet, User } from "lucide-react";
 import { Button } from "@/src/shared/components/ui";
@@ -20,7 +21,9 @@ import { detectAppointmentConflicts } from "@/src/features/appointments/utils/co
 import { RecurringConfig } from "@/src/features/appointments/components/recurring-appointment-modal";
 import { useAuth } from "@/src/shared/contexts/auth-context";
 
-export default function AppointmentsPage() {
+function AppointmentsPageContent() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
   const { user } = useAuth();
   const [searchQuery, setSearchQuery] = useState("");
   const [viewMode, setViewMode] = useState<"calendar" | "list">("calendar");
@@ -56,6 +59,33 @@ export default function AppointmentsPage() {
     doctorFilter: selectedDoctor,
     statusFilter: statusFilter,
   });
+
+  useEffect(() => {
+    if (searchParams.get('refresh')) {
+      refreshAppointments();
+      router.replace('/appointments', { scroll: false });
+    }
+  }, [searchParams, refreshAppointments, router]);
+
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        refreshAppointments();
+      }
+    };
+
+    const handleFocus = () => {
+      refreshAppointments();
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    window.addEventListener('focus', handleFocus);
+
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+      window.removeEventListener('focus', handleFocus);
+    };
+  }, [refreshAppointments]);
 
   const appointments = useMemo(() => {
     let filtered = [...rawAppointments];
@@ -415,5 +445,17 @@ export default function AppointmentsPage() {
         onCreateRecurring={handleCreateRecurring}
       />
     </div>
+  );
+}
+
+export default function AppointmentsPage() {
+  return (
+    <Suspense fallback={
+      <div className="flex items-center justify-center min-h-[400px]">
+        <Loader2 className="w-8 h-8 text-blue-600 animate-spin" />
+      </div>
+    }>
+      <AppointmentsPageContent />
+    </Suspense>
   );
 }
