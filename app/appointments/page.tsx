@@ -262,7 +262,7 @@ export default function AppointmentsPage() {
         <div className="flex items-center gap-3 flex-wrap">
           {isDoctor && (
             <Button
-              variant={viewMyAppointments ? "default" : "outlined"}
+              variant={viewMyAppointments ? "filled" : "outlined"}
               onClick={() => setViewMyAppointments(!viewMyAppointments)}
               className={viewMyAppointments ? "bg-blue-600 hover:bg-blue-700" : ""}
             >
