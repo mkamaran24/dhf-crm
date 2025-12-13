@@ -176,7 +176,7 @@ export default function PatientDetailsPage({ params }: { params: Promise<{ id: s
                 </Button>
               </div>
               
-              {patient.visits.length > 0 ? (
+              {patient.visits && patient.visits.length > 0 ? (
                 <div className="space-y-4">
                   {patient.visits.map((visit) => (
                     <div key={visit.id} className="bg-white p-6 rounded-xl border border-gray-200 shadow-sm hover:shadow-md transition-shadow">
@@ -238,7 +238,7 @@ export default function PatientDetailsPage({ params }: { params: Promise<{ id: s
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-200">
-                    {patient.documents.map((doc) => (
+                    {patient.documents && patient.documents.map((doc) => (
                       <tr key={doc.id} className="hover:bg-gray-50">
                         <td className="px-6 py-4 font-medium text-gray-900 flex items-center gap-3">
                           <FileText className="w-5 h-5 text-gray-400" />
@@ -254,7 +254,7 @@ export default function PatientDetailsPage({ params }: { params: Promise<{ id: s
                         </td>
                       </tr>
                     ))}
-                    {patient.documents.length === 0 && (
+                    {(!patient.documents || patient.documents.length === 0) && (
                        <tr>
                         <td colSpan={5} className="px-6 py-12 text-center text-gray-500">
                           No documents uploaded yet.

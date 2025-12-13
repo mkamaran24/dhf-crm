@@ -3,9 +3,10 @@ import { getJourney, updateJourneyStage } from "@/src/shared/services/data-store
 
 export async function GET(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
-  const journey = getJourney(params.id);
+  const { id } = await params;
+  const journey = getJourney(id);
   
   if (!journey) {
     return NextResponse.json(
@@ -19,9 +20,10 @@ export async function GET(
 
 export async function PATCH(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const body = await request.json();
     const { currentStage } = body;
 
@@ -32,7 +34,7 @@ export async function PATCH(
       );
     }
 
-    const updatedJourney = updateJourneyStage(params.id, currentStage);
+    const updatedJourney = updateJourneyStage(id, currentStage);
 
     if (!updatedJourney) {
       return NextResponse.json(

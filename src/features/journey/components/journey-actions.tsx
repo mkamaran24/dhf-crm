@@ -115,7 +115,8 @@ export function JourneyActions({ journey, onStageUpdate }: JourneyActionsProps) 
               variant="outlined"
               size="sm"
               className="text-sm"
-              onClick={() => window.location.href = `/appointments/create?patientId=${journey.patientId}`}
+              onClick={() => window.location.href = `/appointments/create?patientId=${journey.patientId || ''}`}
+              disabled={!journey.patientId}
             >
               <Calendar className="w-4 h-4 mr-1.5" />
               Book Appointment
@@ -124,7 +125,8 @@ export function JourneyActions({ journey, onStageUpdate }: JourneyActionsProps) 
               variant="outlined"
               size="sm"
               className="text-sm"
-              onClick={() => window.location.href = `/patients/${journey.patientId}`}
+              onClick={() => window.location.href = `/patients/${journey.patientId || ''}`}
+              disabled={!journey.patientId}
             >
               <FileText className="w-4 h-4 mr-1.5" />
               View Profile
