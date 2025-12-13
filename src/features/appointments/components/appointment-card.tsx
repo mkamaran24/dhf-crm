@@ -2,14 +2,21 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { Clock, User, Calendar, Bell } from "lucide-react";
+import { Clock, User, Calendar, Bell, Edit, MoreVertical, ExternalLink, CheckCircle } from "lucide-react";
 import { Appointment } from "../types";
 import { Badge } from "@/src/shared/components/ui";
 import { AppointmentReminderModal } from "./appointment-reminder-modal";
+import { QuickActionsModal } from "./quick-actions-modal";
+import { AppointmentStatus } from "@/src/shared/types";
 
 interface AppointmentCardProps {
   appointment: Appointment;
   view: "calendar" | "list";
+  onUpdateStatus?: (appointmentId: string, status: AppointmentStatus) => Promise<void>;
+  onReschedule?: (appointmentId: string, newDate: string, newTime: string) => Promise<void>;
+  onAddNote?: (appointmentId: string, note: string) => Promise<void>;
+  isSelected?: boolean;
+  onSelect?: (appointmentId: string) => void;
 }
 
 function getStatusColor(status: string) {
@@ -47,15 +54,22 @@ function formatDate(dateString: string): string {
   return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
 }
 
-export function AppointmentCard({ appointment, view }: AppointmentCardProps) {
+export function AppointmentCard({ 
+  appointment, 
+  view, 
+  onUpdateStatus = async () => {}, 
+  onReschedule = async () => {},
+  onAddNote = async () => {},
+  isSelected = false,
+  onSelect
+}: AppointmentCardProps) {
   const [showReminderModal, setShowReminderModal] = useState(false);
+  const [showQuickActions, setShowQuickActions] = useState(false);
   const statusColor = getStatusColor(appointment.status);
 
   const handleSendReminder = async (type: "sms" | "whatsapp", apt: Appointment) => {
-    // Frontend-only: Simulate sending reminder
     await new Promise(resolve => setTimeout(resolve, 1000));
     console.log(`Sending ${type} reminder for appointment ${apt.id}`);
-    // In production, this would call an API endpoint
   };
 
   if (view === "calendar") {
@@ -86,8 +100,22 @@ export function AppointmentCard({ appointment, view }: AppointmentCardProps) {
   // List view
   return (
     <>
-      <div className="group bg-white border-2 rounded-xl p-5 hover:shadow-lg transition-all duration-200 border-gray-200 hover:border-blue-300">
-        <div className="flex items-start justify-between gap-4">
+      <div className={`group bg-white border-2 rounded-xl p-5 hover:shadow-lg transition-all duration-200 ${
+        isSelected ? "border-blue-500 bg-blue-50" : "border-gray-200 hover:border-blue-300"
+      }`}>
+        <div className="flex items-start gap-4">
+          {onSelect && (
+            <div className="flex items-center pt-1">
+              <input
+                type="checkbox"
+                checked={isSelected}
+                onChange={() => onSelect(appointment.id)}
+                className="w-5 h-5 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                onClick={(e) => e.stopPropagation()}
+              />
+            </div>
+          )}
+
           <Link href={`/appointments/${appointment.id}`} className="flex items-start gap-4 flex-1 min-w-0">
             <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center flex-shrink-0 shadow-lg">
               <Calendar className="w-7 h-7 text-white" />
@@ -123,6 +151,15 @@ export function AppointmentCard({ appointment, view }: AppointmentCardProps) {
           </Link>
 
           <div className="flex items-center gap-2 flex-shrink-0">
+            <Link
+              href={`/patients/${appointment.patientName.toLowerCase().replace(/\s+/g, '-')}`}
+              className="p-2 text-gray-400 hover:text-green-600 hover:bg-green-50 rounded-lg transition-colors"
+              title="View patient profile"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <ExternalLink className="w-5 h-5" />
+            </Link>
+            
             <button
               onClick={(e) => {
                 e.stopPropagation();
@@ -133,6 +170,17 @@ export function AppointmentCard({ appointment, view }: AppointmentCardProps) {
             >
               <Bell className="w-5 h-5" />
             </button>
+
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                setShowQuickActions(true);
+              }}
+              className="p-2 text-gray-400 hover:text-purple-600 hover:bg-purple-50 rounded-lg transition-colors"
+              title="Quick actions"
+            >
+              <MoreVertical className="w-5 h-5" />
+            </button>
           </div>
         </div>
       </div>
@@ -142,6 +190,15 @@ export function AppointmentCard({ appointment, view }: AppointmentCardProps) {
         appointment={appointment}
         onClose={() => setShowReminderModal(false)}
         onSendReminder={handleSendReminder}
+      />
+
+      <QuickActionsModal
+        isOpen={showQuickActions}
+        appointment={appointment}
+        onClose={() => setShowQuickActions(false)}
+        onUpdateStatus={onUpdateStatus}
+        onReschedule={onReschedule}
+        onAddNote={onAddNote}
       />
     </>
   );

@@ -41,6 +41,28 @@ export const DOCTORS = DOCTORS_RAW.map(doctor => ({
   value: doctor
 }));
 
+export const DEPARTMENTS_RAW = [
+  "General Dentistry",
+  "Orthodontics",
+  "Oral Surgery",
+  "Pediatric Dentistry",
+  "Endodontics",
+  "Periodontics"
+] as const;
+
+export const DEPARTMENTS = DEPARTMENTS_RAW.map(dept => ({
+  label: dept,
+  value: dept
+}));
+
+export const TIME_FILTERS = [
+  { label: "All", value: "all" },
+  { label: "Today", value: "today" },
+  { label: "This Week", value: "week" },
+  { label: "This Month", value: "month" },
+  { label: "Upcoming", value: "upcoming" }
+] as const;
+
 export const APPOINTMENT_STATUSES = [
   "scheduled",
   "confirmed",

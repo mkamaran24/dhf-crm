@@ -3,7 +3,8 @@
 
 import { useState, useEffect } from "react";
 import { Card, Button } from "@/src/shared/components/ui";
-import { Download, Users, Calendar, DollarSign, AlertCircle, TrendingUp, ArrowUpRight, ArrowDownRight, Loader2 } from "lucide-react";
+import { Download, Users, Calendar, DollarSign, AlertCircle, TrendingUp, ArrowUpRight, ArrowDownRight, Loader2, FileText, FileSpreadsheet } from "lucide-react";
+import { exportComprehensivePDF, exportComprehensiveExcel, exportComprehensiveCSV } from "@/src/shared/lib/export";
 import { 
   BarChart, 
   Bar, 
@@ -56,9 +57,19 @@ export default function ReportsPage() {
     fetchData();
   }, []);
 
-  const handleExport = () => {
-    // Mock export
-    alert("Downloading report...");
+  const handleExport = (format: 'pdf' | 'excel' | 'csv') => {
+    if (!data) return;
+
+    const timestamp = new Date().toISOString().split('T')[0];
+    const filename = `comprehensive-reports-${timestamp}`;
+
+    if (format === 'pdf') {
+      exportComprehensivePDF(data, `${filename}.pdf`);
+    } else if (format === 'excel') {
+      exportComprehensiveExcel(data, `${filename}.xlsx`);
+    } else if (format === 'csv') {
+      exportComprehensiveCSV(data, `${filename}.csv`);
+    }
   };
 
   if (loading || !data) {
@@ -76,13 +87,32 @@ export default function ReportsPage() {
           <h1 className="text-2xl font-bold text-gray-900">Reports & Analytics</h1>
           <p className="text-gray-500 text-sm mt-1">Key performance indicators and business insights</p>
         </div>
-        <Button 
-          onClick={handleExport}
-          className="bg-white border-gray-200 text-gray-700 hover:bg-gray-50 shadow-sm"
-        >
-          <Download className="w-4 h-4 mr-2" />
-          Export Report
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button 
+            onClick={() => handleExport('pdf')}
+            className="bg-white border-gray-200 text-gray-700 hover:bg-gray-50 shadow-sm"
+            size="sm"
+          >
+            <FileText className="w-4 h-4 mr-2" />
+            PDF
+          </Button>
+          <Button 
+            onClick={() => handleExport('excel')}
+            className="bg-white border-gray-200 text-gray-700 hover:bg-gray-50 shadow-sm"
+            size="sm"
+          >
+            <FileSpreadsheet className="w-4 h-4 mr-2" />
+            Excel
+          </Button>
+          <Button 
+            onClick={() => handleExport('csv')}
+            className="bg-white border-gray-200 text-gray-700 hover:bg-gray-50 shadow-sm"
+            size="sm"
+          >
+            <Download className="w-4 h-4 mr-2" />
+            CSV
+          </Button>
+        </div>
       </div>
 
       {/* KPI Grid */}

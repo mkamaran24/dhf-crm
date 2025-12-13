@@ -4,3 +4,6 @@ export { AppointmentFilters } from './appointment-filters';
 export { AppointmentStats } from './appointment-stats';
 export { AppointmentListView } from './appointment-list-view';
 export { AppointmentReminderModal } from './appointment-reminder-modal';
+export { QuickActionsModal } from './quick-actions-modal';
+export { BulkActionsBar } from './bulk-actions-bar';
+export { RecurringAppointmentModal } from './recurring-appointment-modal';

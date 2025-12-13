@@ -75,5 +75,6 @@ export function useAppointments(options: UseAppointmentsOptions = {}) {
     getAppointmentsForDay,
     deleteAppointment,
     refetch: fetchAppointments,
+    refreshAppointments: fetchAppointments,
   };
 }

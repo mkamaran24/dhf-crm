@@ -4,12 +4,25 @@ import { Calendar } from "lucide-react";
 import { Appointment } from "../types";
 import { AppointmentCard } from "./appointment-card";
 import { Card, CardContent } from "@/src/shared/components/ui";
+import { AppointmentStatus } from "@/src/shared/types";
 
 interface AppointmentListViewProps {
   appointments: Appointment[];
+  onUpdateStatus?: (appointmentId: string, status: AppointmentStatus) => Promise<void>;
+  onReschedule?: (appointmentId: string, newDate: string, newTime: string) => Promise<void>;
+  onAddNote?: (appointmentId: string, note: string) => Promise<void>;
+  selectedIds?: string[];
+  onSelect?: (appointmentId: string) => void;
 }
 
-export function AppointmentListView({ appointments }: AppointmentListViewProps) {
+export function AppointmentListView({ 
+  appointments, 
+  onUpdateStatus, 
+  onReschedule, 
+  onAddNote,
+  selectedIds = [],
+  onSelect
+}: AppointmentListViewProps) {
   if (appointments.length === 0) {
     return (
       <Card>
@@ -31,6 +44,11 @@ export function AppointmentListView({ appointments }: AppointmentListViewProps) 
           key={appointment.id}
           appointment={appointment}
           view="list"
+          onUpdateStatus={onUpdateStatus}
+          onReschedule={onReschedule}
+          onAddNote={onAddNote}
+          isSelected={selectedIds.includes(appointment.id)}
+          onSelect={onSelect}
         />
       ))}
     </div>
