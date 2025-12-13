@@ -1,6 +1,5 @@
-
 import { NextResponse } from 'next/server';
-import { tasks, addTask } from '@/lib/data';
+import { tasks, addTask } from '@/src/shared/services/data-store';
 
 export async function GET() {
   return NextResponse.json(tasks);

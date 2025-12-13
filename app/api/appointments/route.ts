@@ -1,6 +1,5 @@
-
 import { NextResponse } from 'next/server';
-import { appointments, addAppointment } from '@/lib/data';
+import { appointments, addAppointment } from '@/src/shared/services/data-store';
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);

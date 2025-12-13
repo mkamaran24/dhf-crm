@@ -1,6 +1,5 @@
-
 import { NextResponse } from 'next/server';
-import { getAppointment, updateAppointment, deleteAppointment } from '@/lib/data';
+import { getAppointment, updateAppointment, deleteAppointment } from '@/src/shared/services/data-store';
 
 export async function GET(
     request: Request,

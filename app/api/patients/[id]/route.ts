@@ -1,6 +1,5 @@
-
 import { NextResponse } from "next/server";
-import { getPatient, updatePatient, deletePatient } from "@/lib/data";
+import { getPatient, updatePatient, deletePatient } from "@/src/shared/services/data-store";
 
 export async function GET(
     request: Request,

@@ -3,11 +3,9 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { ArrowLeft, Save } from "lucide-react";
-import { MaterialCard } from "@/components/MaterialCard";
-import { MaterialInput } from "@/components/MaterialInput";
-import { MaterialSelect } from "@/components/MaterialSelect";
-import { MaterialButton } from "@/components/MaterialButton";
+import { ChevronLeft, Save, Users, Mail, Phone, MapPin, Calendar } from "lucide-react";
+import { Card, CardHeader, CardContent, Button, Input, Select } from "@/src/shared/components/ui";
+import { GENDER_OPTIONS } from "@/src/shared/constants";
 
 export default function CreatePatientPage() {
   const router = useRouter();
@@ -34,92 +32,116 @@ export default function CreatePatientPage() {
     }
   };
 
+  const genderOptions = GENDER_OPTIONS.map(g => ({ label: g, value: g }));
+
   return (
     <div className="max-w-3xl mx-auto space-y-6">
       <div className="flex items-center gap-4">
         <Link href="/patients">
-          <MaterialButton variant="text" size="sm" className="pl-0 hover:pl-1 transition-all">
-            <ArrowLeft className="w-4 h-4 mr-1" />
-            Back to List
-          </MaterialButton>
+          <button className="p-2 hover:bg-gray-100 rounded-lg transition-colors">
+            <ChevronLeft className="w-5 h-5 text-gray-600" />
+          </button>
         </Link>
-        <h1 className="text-2xl font-bold text-gray-800">Add New Patient</h1>
+        <div>
+          <h1 className="text-2xl font-bold text-gray-900">Add New Patient</h1>
+          <p className="text-sm text-gray-500 mt-1">Register a new patient in the system</p>
+        </div>
       </div>
 
-      <MaterialCard className="p-8">
-        <form onSubmit={handleSubmit} className="space-y-6">
-          <h3 className="text-lg font-semibold text-gray-800 border-b border-gray-100 pb-2">Personal Information</h3>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <MaterialInput 
-              label="First Name" 
-              name="firstName" 
-              placeholder="e.g. John" 
-              required 
-            />
-            <MaterialInput 
-              label="Last Name" 
-              name="lastName" 
-              placeholder="e.g. Doe" 
-              required 
-            />
+      <Card>
+        <CardHeader className="border-b border-gray-100">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-lg bg-purple-100 flex items-center justify-center">
+              <Users className="w-5 h-5 text-purple-600" />
+            </div>
+            <div>
+              <h2 className="text-lg font-semibold text-gray-900">Patient Information</h2>
+              <p className="text-sm text-gray-500">Complete patient registration form</p>
+            </div>
           </div>
+        </CardHeader>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <MaterialInput 
-              label="Email Address" 
-              name="email" 
-              type="email" 
-              placeholder="john@example.com" 
-              required 
-            />
-            <MaterialInput 
-              label="Phone Number" 
-              name="phone" 
-              type="tel" 
-              placeholder="(555) 000-0000" 
-              required 
-            />
-          </div>
+        <CardContent className="p-6">
+          <form onSubmit={handleSubmit} className="space-y-8">
+            <div className="space-y-6">
+              <h3 className="text-sm font-semibold text-gray-900 uppercase tracking-wide">Personal Details</h3>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <Input 
+                  label="First Name" 
+                  name="firstName" 
+                  placeholder="John" 
+                  required 
+                />
+                <Input 
+                  label="Last Name" 
+                  name="lastName" 
+                  placeholder="Doe" 
+                  required 
+                />
+              </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <MaterialInput 
-              label="Date of Birth" 
-              name="dob" 
-              type="date" 
-              required 
-            />
-            <MaterialSelect 
-              label="Gender" 
-              name="gender" 
-              options={[
-                { label: "Male", value: "Male" },
-                { label: "Female", value: "Female" },
-                { label: "Other", value: "Other" },
-              ]}
-            />
-          </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <Input 
+                  label="Date of Birth" 
+                  name="dob" 
+                  type="date" 
+                  required
+                  icon={<Calendar className="w-4 h-4" />}
+                />
+                <Select 
+                  label="Gender" 
+                  name="gender" 
+                  options={genderOptions}
+                />
+              </div>
+            </div>
 
-          <MaterialInput 
-            label="Address" 
-            name="address" 
-            placeholder="123 Main St, City, Country" 
-            required 
-          />
+            <div className="space-y-6">
+              <h3 className="text-sm font-semibold text-gray-900 uppercase tracking-wide">Contact Information</h3>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <Input 
+                  label="Email Address" 
+                  name="email" 
+                  type="email" 
+                  placeholder="john@example.com" 
+                  required
+                  icon={<Mail className="w-4 h-4" />}
+                />
+                <Input 
+                  label="Phone Number" 
+                  name="phone" 
+                  type="tel" 
+                  placeholder="+1 (555) 000-0000" 
+                  required
+                  icon={<Phone className="w-4 h-4" />}
+                />
+              </div>
 
-          <div className="pt-4 flex justify-end gap-3 border-t border-gray-100 mt-6">
-            <Link href="/patients">
-              <MaterialButton type="button" variant="outlined">
-                Cancel
-              </MaterialButton>
-            </Link>
-            <MaterialButton type="submit" isLoading={isSubmitting}>
-              <Save className="w-4 h-4 mr-2" />
-              Create Patient
-            </MaterialButton>
-          </div>
-        </form>
-      </MaterialCard>
+              <Input 
+                label="Address" 
+                name="address" 
+                placeholder="123 Main St, City, State, ZIP" 
+                required
+                icon={<MapPin className="w-4 h-4" />}
+              />
+            </div>
+
+            <div className="pt-4 flex justify-end gap-3 border-t border-gray-100">
+              <Link href="/patients">
+                <Button type="button" variant="outlined">
+                  Cancel
+                </Button>
+              </Link>
+              <Button type="submit" isLoading={isSubmitting}>
+                <Save className="w-4 h-4 mr-2" />
+                Register Patient
+              </Button>
+            </div>
+          </form>
+        </CardContent>
+      </Card>
     </div>
   );
 }

@@ -1,6 +1,5 @@
-
 import { NextResponse } from 'next/server';
-import { updateTask, deleteTask, tasks } from '@/lib/data';
+import { updateTask, deleteTask } from '@/src/shared/services/data-store';
 
 export async function PUT(
   request: Request,

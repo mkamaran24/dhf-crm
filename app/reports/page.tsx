@@ -2,8 +2,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { MaterialCard } from "@/components/MaterialCard";
-import { MaterialButton } from "@/components/MaterialButton";
+import { Card, Button } from "@/src/shared/components/ui";
 import { Download, Users, Calendar, DollarSign, AlertCircle, TrendingUp, ArrowUpRight, ArrowDownRight, Loader2 } from "lucide-react";
 import { 
   BarChart, 
@@ -71,25 +70,24 @@ export default function ReportsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50/50 p-6 space-y-6">
-      {/* Header */}
+    <div className="space-y-6">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900 tracking-tight">Reports & Analytics</h1>
-          <p className="text-gray-500 text-sm">Key performance indicators and business metrics</p>
+          <h1 className="text-2xl font-bold text-gray-900">Reports & Analytics</h1>
+          <p className="text-gray-500 text-sm mt-1">Key performance indicators and business insights</p>
         </div>
-        <MaterialButton 
+        <Button 
           onClick={handleExport}
           className="bg-white border-gray-200 text-gray-700 hover:bg-gray-50 shadow-sm"
         >
           <Download className="w-4 h-4 mr-2" />
           Export Report
-        </MaterialButton>
+        </Button>
       </div>
 
       {/* KPI Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <MaterialCard className="p-5 border-0 shadow-md shadow-blue-500/5 bg-gradient-to-br from-white to-blue-50/50">
+        <Card className="p-5 border-0 shadow-md shadow-blue-500/5 bg-gradient-to-br from-white to-blue-50/50">
           <div className="flex items-center justify-between mb-4">
             <div className="p-2 bg-blue-100 rounded-lg text-blue-600">
               <Users className="w-5 h-5" />
@@ -103,9 +101,9 @@ export default function ReportsPage() {
             <p className="text-sm font-medium text-gray-500">Lead Conversion</p>
             <h3 className="text-2xl font-bold text-gray-900">{data.kpi.leadConversionRate}%</h3>
           </div>
-        </MaterialCard>
+        </Card>
 
-        <MaterialCard className="p-5 border-0 shadow-md shadow-purple-500/5 bg-gradient-to-br from-white to-purple-50/50">
+        <Card className="p-5 border-0 shadow-md shadow-purple-500/5 bg-gradient-to-br from-white to-purple-50/50">
           <div className="flex items-center justify-between mb-4">
             <div className="p-2 bg-purple-100 rounded-lg text-purple-600">
               <Calendar className="w-5 h-5" />
@@ -115,9 +113,9 @@ export default function ReportsPage() {
             <p className="text-sm font-medium text-gray-500">Appointments</p>
             <h3 className="text-2xl font-bold text-gray-900">{data.kpi.totalAppointments}</h3>
           </div>
-        </MaterialCard>
+        </Card>
 
-        <MaterialCard className="p-5 border-0 shadow-md shadow-red-500/5 bg-gradient-to-br from-white to-red-50/50">
+        <Card className="p-5 border-0 shadow-md shadow-red-500/5 bg-gradient-to-br from-white to-red-50/50">
           <div className="flex items-center justify-between mb-4">
              <div className="p-2 bg-red-100 rounded-lg text-red-600">
               <AlertCircle className="w-5 h-5" />
@@ -131,9 +129,9 @@ export default function ReportsPage() {
             <p className="text-sm font-medium text-gray-500">No-Show Rate</p>
             <h3 className="text-2xl font-bold text-gray-900">{data.kpi.noShowRate}%</h3>
           </div>
-        </MaterialCard>
+        </Card>
 
-        <MaterialCard className="p-5 border-0 shadow-md shadow-green-500/5 bg-gradient-to-br from-white to-green-50/50">
+        <Card className="p-5 border-0 shadow-md shadow-green-500/5 bg-gradient-to-br from-white to-green-50/50">
            <div className="flex items-center justify-between mb-4">
             <div className="p-2 bg-green-100 rounded-lg text-green-600">
               <DollarSign className="w-5 h-5" />
@@ -147,12 +145,12 @@ export default function ReportsPage() {
             <p className="text-sm font-medium text-gray-500">Total Revenue</p>
             <h3 className="text-2xl font-bold text-gray-900">${data.kpi.totalRevenue.toLocaleString()}</h3>
           </div>
-        </MaterialCard>
+        </Card>
       </div>
 
       {/* Charts Row 1 */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <MaterialCard className="p-6">
+        <Card className="p-6">
           <h3 className="text-lg font-semibold text-gray-900 mb-6">Revenue Trend</h3>
           <div className="h-[300px]">
              <ResponsiveContainer width="100%" height="100%">
@@ -167,9 +165,9 @@ export default function ReportsPage() {
                </LineChart>
              </ResponsiveContainer>
           </div>
-        </MaterialCard>
+        </Card>
 
-        <MaterialCard className="p-6">
+        <Card className="p-6">
           <h3 className="text-lg font-semibold text-gray-900 mb-6">Appointments this Week</h3>
           <div className="h-[300px]">
              <ResponsiveContainer width="100%" height="100%">
@@ -185,13 +183,13 @@ export default function ReportsPage() {
                </BarChart>
              </ResponsiveContainer>
           </div>
-        </MaterialCard>
+        </Card>
       </div>
 
        {/* Charts Row 2 & Table */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Pie Chart */}
-        <MaterialCard className="p-6 lg:col-span-1">
+        <Card className="p-6 lg:col-span-1">
           <h3 className="text-lg font-semibold text-gray-900 mb-2">Lead Sources</h3>
           <div className="h-[300px] flex flex-col items-center justify-center">
             <ResponsiveContainer width="100%" height="100%">
@@ -221,13 +219,13 @@ export default function ReportsPage() {
               ))}
             </div>
           </div>
-        </MaterialCard>
+        </Card>
 
         {/* Recent Transactions Table */}
-        <MaterialCard className="p-0 overflow-hidden lg:col-span-2">
+        <Card className="p-0 overflow-hidden lg:col-span-2">
           <div className="p-4 border-b border-gray-100 flex items-center justify-between">
             <h3 className="text-lg font-semibold text-gray-900">Recent Activity</h3>
-            <MaterialButton variant="text" size="sm">View All</MaterialButton>
+            <Button variant="text" size="sm">View All</Button>
           </div>
           <div className="overflow-x-auto">
             <table className="w-full text-sm text-left">
@@ -265,7 +263,7 @@ export default function ReportsPage() {
               </tbody>
             </table>
           </div>
-        </MaterialCard>
+        </Card>
       </div>
     </div>
   );

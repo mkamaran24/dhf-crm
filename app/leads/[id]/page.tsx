@@ -2,13 +2,13 @@
 
 import { useEffect, useState } from "react";
 import { useRouter, useParams } from "next/navigation";
-import { ArrowLeft, Save, Loader2 } from "lucide-react";
+import { ChevronLeft, Save, Loader2, UserPlus, Mail, Phone, Trash2 } from "lucide-react";
 import Link from "next/link";
-import { MaterialButton } from "@/components/MaterialButton";
-import { MaterialCard } from "@/components/MaterialCard";
-import { Lead, LEAD_STATUSES, LeadStatus } from "@/types/lead";
-
-const SOURCES = ["Website", "Referral", "Ad Campaign", "Social Media", "Cold Call", "Event"];
+import { Button, Card, CardHeader, CardContent, Input, Select } from "@/src/shared/components/ui";
+import { DeleteConfirmationModal } from "@/src/shared/components/ui";
+import { Lead } from "@/src/features/leads/types";
+import { LEAD_STATUSES, LEAD_SOURCES } from "@/src/shared/constants";
+import { LeadStatus } from "@/src/shared/types";
 
 export default function EditLeadPage() {
   const router = useRouter();
@@ -17,6 +17,7 @@ export default function EditLeadPage() {
 
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
@@ -28,7 +29,6 @@ export default function EditLeadPage() {
 
   useEffect(() => {
     if (leadId) {
-      // Fetch the lead data
       fetch(`/api/leads/${leadId}`)
         .then((res) => res.json())
         .then((lead: Lead) => {
@@ -44,7 +44,6 @@ export default function EditLeadPage() {
         })
         .catch(() => {
           setIsLoading(false);
-          alert("Failed to load lead");
         });
     }
   }, [leadId]);
@@ -62,14 +61,25 @@ export default function EditLeadPage() {
 
       if (res.ok) {
         router.push("/leads");
-      } else {
-        alert("Failed to update lead");
       }
     } catch (error) {
       console.error("Error updating lead:", error);
-      alert("Failed to update lead");
     } finally {
       setIsSaving(false);
+    }
+  };
+
+  const handleDelete = async () => {
+    try {
+      const res = await fetch(`/api/leads/${leadId}`, {
+        method: "DELETE",
+      });
+
+      if (res.ok) {
+        router.push("/leads");
+      }
+    } catch (error) {
+      console.error("Error deleting lead:", error);
     }
   };
 
@@ -83,150 +93,131 @@ export default function EditLeadPage() {
   if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
-        <Loader2 className="w-8 h-8 text-blue-500 animate-spin" />
+        <Loader2 className="w-8 h-8 text-blue-600 animate-spin" />
       </div>
     );
   }
 
+  const sourceOptions = LEAD_SOURCES.map(s => ({ label: s, value: s }));
+  const statusOptions = LEAD_STATUSES.map(s => ({ label: s, value: s }));
+
   return (
-    <div className="max-w-2xl mx-auto space-y-6">
+    <div className="max-w-3xl mx-auto space-y-6">
       <div className="flex items-center gap-4">
         <Link href="/leads">
           <button className="p-2 hover:bg-gray-100 rounded-lg transition-colors">
-            <ArrowLeft className="w-5 h-5 text-gray-600" />
+            <ChevronLeft className="w-5 h-5 text-gray-600" />
           </button>
         </Link>
         <div>
-          <h1 className="text-2xl font-bold text-gray-800">Edit Lead</h1>
+          <h1 className="text-2xl font-bold text-gray-900">Edit Lead</h1>
           <p className="text-sm text-gray-500 mt-1">Update lead information</p>
         </div>
       </div>
 
-      <MaterialCard elevation="md" className="p-6">
-        <form onSubmit={handleSubmit} className="space-y-6">
-          <div className="grid grid-cols-2 gap-4">
+      <Card>
+        <CardHeader className="border-b border-gray-100">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-lg bg-blue-100 flex items-center justify-center">
+              <UserPlus className="w-5 h-5 text-blue-600" />
+            </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                First Name *
-              </label>
-              <input
-                type="text"
+              <h2 className="text-lg font-semibold text-gray-900">Lead Details</h2>
+              <p className="text-sm text-gray-500">Manage lead information and status</p>
+            </div>
+          </div>
+        </CardHeader>
+
+        <CardContent className="p-6">
+          <form onSubmit={handleSubmit} className="space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <Input
+                label="First Name"
                 name="firstName"
                 value={formData.firstName}
                 onChange={handleChange}
                 required
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Last Name *
-              </label>
-              <input
-                type="text"
+              <Input
+                label="Last Name"
                 name="lastName"
                 value={formData.lastName}
                 onChange={handleChange}
                 required
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               />
             </div>
-          </div>
 
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Email *
-            </label>
-            <input
-              type="email"
-              name="email"
-              value={formData.email}
-              onChange={handleChange}
-              required
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            />
-          </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <Input
+                label="Email Address"
+                name="email"
+                type="email"
+                value={formData.email}
+                onChange={handleChange}
+                required
+                icon={<Mail className="w-4 h-4" />}
+              />
+              <Input
+                label="Phone Number"
+                name="phone"
+                type="tel"
+                value={formData.phone}
+                onChange={handleChange}
+                required
+                icon={<Phone className="w-4 h-4" />}
+              />
+            </div>
 
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Phone *
-            </label>
-            <input
-              type="tel"
-              name="phone"
-              value={formData.phone}
-              onChange={handleChange}
-              required
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            />
-          </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <Select
+                label="Lead Source"
+                name="source"
+                value={formData.source}
+                onChange={handleChange}
+                options={sourceOptions}
+              />
+              <Select
+                label="Status"
+                name="status"
+                value={formData.status}
+                onChange={handleChange}
+                options={statusOptions}
+              />
+            </div>
 
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Source *
-            </label>
-            <select
-              name="source"
-              value={formData.source}
-              onChange={handleChange}
-              required
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white cursor-pointer"
-            >
-              {SOURCES.map((source) => (
-                <option key={source} value={source}>
-                  {source}
-                </option>
-              ))}
-            </select>
-          </div>
+            <div className="flex items-center justify-between pt-6 border-t border-gray-100">
+              <Button
+                type="button"
+                variant="text"
+                onClick={() => setShowDeleteModal(true)}
+                className="text-red-600 hover:bg-red-50"
+              >
+                <Trash2 className="w-4 h-4 mr-2" />
+                Delete Lead
+              </Button>
 
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Status *
-            </label>
-            <select
-              name="status"
-              value={formData.status}
-              onChange={handleChange}
-              required
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white cursor-pointer"
-            >
-              {LEAD_STATUSES.map((status) => (
-                <option key={status} value={status}>
-                  {status}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          <div className="flex gap-3 pt-4 border-t border-gray-200">
-            <MaterialButton
-              type="submit"
-              variant="filled"
-              disabled={isSaving}
-              className="flex-1"
-            >
-              {isSaving ? (
-                <>
-                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                  Saving...
-                </>
-              ) : (
-                <>
+              <div className="flex items-center gap-3">
+                <Link href="/leads">
+                  <Button type="button" variant="outlined">
+                    Cancel
+                  </Button>
+                </Link>
+                <Button type="submit" isLoading={isSaving}>
                   <Save className="w-4 h-4 mr-2" />
                   Save Changes
-                </>
-              )}
-            </MaterialButton>
-            <Link href="/leads" className="flex-1">
-              <MaterialButton type="button" variant="outlined" className="w-full">
-                Cancel
-              </MaterialButton>
-            </Link>
-          </div>
-        </form>
-      </MaterialCard>
+                </Button>
+              </div>
+            </div>
+          </form>
+        </CardContent>
+      </Card>
+
+      <DeleteConfirmationModal
+        isOpen={showDeleteModal}
+        itemName={`${formData.firstName} ${formData.lastName}`}
+        onConfirm={handleDelete}
+        onCancel={() => setShowDeleteModal(false)}
+      />
     </div>
   );
 }

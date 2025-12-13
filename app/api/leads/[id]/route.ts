@@ -1,6 +1,5 @@
-
 import { NextResponse } from "next/server";
-import { leads, updateLead, deleteLead } from "@/lib/data";
+import { leads, updateLead, deleteLead } from "@/src/shared/services/data-store";
 
 export async function GET(
     request: Request,

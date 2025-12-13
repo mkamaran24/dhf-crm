@@ -1,27 +1,24 @@
-
 "use client";
 
 import { useState, useEffect, use } from "react";
 import { useRouter } from "next/navigation";
-import { MaterialCard } from "@/components/MaterialCard";
-import { MaterialButton } from "@/components/MaterialButton";
-import { ChevronLeft, Save, Trash2, Loader2, Calendar } from "lucide-react";
+import { Card, CardHeader, CardContent, Button, Input, Select } from "@/src/shared/components/ui";
+import { ChevronLeft, Save, Trash2, Loader2, Calendar, User, Clock } from "lucide-react";
 import Link from "next/link";
-import { Appointment } from "@/lib/data";
-
-const DOCTORS = ["Dr. Smith", "Dr. Jones", "Dr. Emily Brown"];
-const APPOINTMENT_TYPES = ["Check-up", "Consultation", "Follow-up", "Emergency", "Teeth Cleaning", "Root Canal"];
+import { Appointment } from "@/src/features/appointments/types";
+import { DeleteConfirmationModal } from "@/src/shared/components/ui";
+import { DOCTORS, APPOINTMENT_TYPES } from "@/src/shared/constants";
 
 export default function AppointmentDetailsPage({ params }: { params: Promise<{ id: string }> }) {
   const unwrappedParams = use(params);
   const router = useRouter();
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [deleting, setDeleting] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [formData, setFormData] = useState<Partial<Appointment>>({
     patientName: "",
-    doctor: DOCTORS[0],
-    type: APPOINTMENT_TYPES[0],
+    doctor: DOCTORS[0].value,
+    type: APPOINTMENT_TYPES[0].value,
     notes: ""
   });
   const [datePart, setDatePart] = useState("");
@@ -71,15 +68,12 @@ export default function AppointmentDetailsPage({ params }: { params: Promise<{ i
       router.push("/appointments");
     } catch (err) {
       console.error(err);
-      alert("Failed to update appointment");
     } finally {
       setSaving(false);
     }
   };
 
   const handleDelete = async () => {
-    if (!confirm("Are you sure you want to cancel this appointment?")) return;
-    setDeleting(true);
     try {
       const res = await fetch(`/api/appointments/${unwrappedParams.id}`, {
         method: "DELETE",
@@ -88,9 +82,6 @@ export default function AppointmentDetailsPage({ params }: { params: Promise<{ i
       router.push("/appointments");
     } catch (err) {
       console.error(err);
-      alert("Failed to cancel appointment");
-    } finally {
-      setDeleting(false);
     }
   };
 
@@ -100,149 +91,136 @@ export default function AppointmentDetailsPage({ params }: { params: Promise<{ i
 
   if (loading) {
      return (
-        <div className="flex h-screen items-center justify-center">
+        <div className="flex items-center justify-center min-h-[400px]">
             <Loader2 className="w-8 h-8 text-blue-600 animate-spin" />
         </div>
      );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50/50 p-6 flex flex-col items-center">
-      <div className="w-full max-w-2xl space-y-6">
-        {/* Header */}
-        <div className="flex items-center gap-4">
-          <Link href="/appointments">
-            <button className="p-2 hover:bg-gray-200 rounded-full transition-colors text-gray-500 hover:text-gray-900">
-              <ChevronLeft className="w-5 h-5" />
-            </button>
-          </Link>
-          <div>
-            <h1 className="text-2xl font-bold text-gray-900 tracking-tight">Appointment Details</h1>
-            <p className="text-gray-500 text-sm">View or edit appointment information</p>
-          </div>
+    <div className="max-w-4xl mx-auto space-y-6">
+      <div className="flex items-center gap-4">
+        <Link href="/appointments">
+          <button className="p-2 hover:bg-gray-100 rounded-lg transition-colors">
+            <ChevronLeft className="w-5 h-5 text-gray-600" />
+          </button>
+        </Link>
+        <div>
+          <h1 className="text-2xl font-bold text-gray-900">Appointment Details</h1>
+          <p className="text-sm text-gray-500 mt-1">View and update appointment information</p>
         </div>
+      </div>
 
-        <MaterialCard elevation="sm" className="border-0 shadow-lg shadow-gray-200/50 relative overflow-hidden">
-          <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-500 to-purple-500"></div>
-          <form onSubmit={handleUpdate} className="space-y-6 pt-2">
+      <Card>
+        <CardHeader className="border-b border-gray-100">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-lg bg-blue-100 flex items-center justify-center">
+              <Calendar className="w-5 h-5 text-blue-600" />
+            </div>
+            <div>
+              <h2 className="text-lg font-semibold text-gray-900">Appointment Information</h2>
+              <p className="text-sm text-gray-500">Update appointment details below</p>
+            </div>
+          </div>
+        </CardHeader>
+
+        <CardContent className="p-6">
+          <form onSubmit={handleUpdate} className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {/* Patient Name */}
-              <div className="space-y-2">
-                <label className="text-sm font-semibold text-gray-700">Patient Name</label>
-                <input
-                  type="text"
-                  name="patientName"
-                  required
-                  value={formData.patientName}
-                  onChange={handleChange}
-                  className="w-full h-11 px-4 rounded-lg bg-gray-50 border border-gray-200 focus:border-blue-500 focus:bg-white focus:ring-2 focus:ring-blue-500/20 transition-all outline-none text-sm"
-                />
-              </div>
+              <Input
+                label="Patient Name"
+                name="patientName"
+                required
+                value={formData.patientName}
+                onChange={handleChange}
+                icon={<User className="w-4 h-4" />}
+              />
 
-              {/* Doctor */}
-              <div className="space-y-2">
-                <label className="text-sm font-semibold text-gray-700">Doctor</label>
-                <div className="relative">
-                  <select
-                    name="doctor"
-                    value={formData.doctor}
-                    onChange={handleChange}
-                    className="w-full h-11 px-4 rounded-lg bg-gray-50 border border-gray-200 focus:border-blue-500 focus:bg-white focus:ring-2 focus:ring-blue-500/20 transition-all outline-none text-sm appearance-none cursor-pointer"
-                  >
-                    {DOCTORS.map(doc => <option key={doc} value={doc}>{doc}</option>)}
-                  </select>
-                  <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-gray-400">
-                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path></svg>
-                  </div>
-                </div>
-              </div>
+              <Select
+                label="Doctor"
+                name="doctor"
+                value={formData.doctor}
+                onChange={handleChange}
+                options={DOCTORS}
+              />
+            </div>
 
-              {/* Date */}
-              <div className="space-y-2">
-                <label className="text-sm font-semibold text-gray-700">Date</label>
-                <input
-                  type="date"
-                  value={datePart}
-                  onChange={(e) => setDatePart(e.target.value)}
-                  required
-                  className="w-full h-11 px-4 rounded-lg bg-gray-50 border border-gray-200 focus:border-blue-500 focus:bg-white focus:ring-2 focus:ring-blue-500/20 transition-all outline-none text-sm"
-                />
-              </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <Input
+                label="Date"
+                type="date"
+                value={datePart}
+                onChange={(e) => setDatePart(e.target.value)}
+                required
+                icon={<Calendar className="w-4 h-4" />}
+              />
 
-              {/* Time */}
-              <div className="space-y-2">
-                <label className="text-sm font-semibold text-gray-700">Time</label>
-                <input
-                  type="time"
-                  value={timePart}
-                  onChange={(e) => setTimePart(e.target.value)}
-                  required
-                  className="w-full h-11 px-4 rounded-lg bg-gray-50 border border-gray-200 focus:border-blue-500 focus:bg-white focus:ring-2 focus:ring-blue-500/20 transition-all outline-none text-sm"
-                />
-              </div>
+              <Input
+                label="Time"
+                type="time"
+                value={timePart}
+                onChange={(e) => setTimePart(e.target.value)}
+                required
+                icon={<Clock className="w-4 h-4" />}
+              />
+            </div>
 
-              {/* Type */}
-              <div className="space-y-2 md:col-span-2">
-                <label className="text-sm font-semibold text-gray-700">Appointment Type</label>
-                <div className="relative">
-                   <select
-                    name="type"
-                    value={formData.type}
-                    onChange={handleChange}
-                    className="w-full h-11 px-4 rounded-lg bg-gray-50 border border-gray-200 focus:border-blue-500 focus:bg-white focus:ring-2 focus:ring-blue-500/20 transition-all outline-none text-sm appearance-none cursor-pointer"
-                  >
-                    {APPOINTMENT_TYPES.map(t => <option key={t} value={t}>{t}</option>)}
-                  </select>
-                   <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-gray-400">
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path></svg>
-                  </div>
-                </div>
-              </div>
+            <Select
+              label="Appointment Type"
+              name="type"
+              value={formData.type}
+              onChange={handleChange}
+              options={APPOINTMENT_TYPES}
+            />
 
-              {/* Notes */}
-              <div className="space-y-2 md:col-span-2">
-                <label className="text-sm font-semibold text-gray-700">Notes</label>
-                <textarea
-                  name="notes"
-                  rows={4}
-                  value={formData.notes || ""}
-                  onChange={handleChange}
-                  className="w-full p-4 rounded-lg bg-gray-50 border border-gray-200 focus:border-blue-500 focus:bg-white focus:ring-2 focus:ring-blue-500/20 transition-all outline-none text-sm resize-none"
-                />
-              </div>
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-gray-700">Notes (Optional)</label>
+              <textarea
+                name="notes"
+                rows={4}
+                value={formData.notes || ""}
+                onChange={handleChange}
+                placeholder="Add any additional notes about this appointment..."
+                className="w-full px-4 py-3 rounded-lg border border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all outline-none resize-none text-sm"
+              />
             </div>
 
             <div className="flex items-center justify-between pt-6 border-t border-gray-100">
-              <MaterialButton 
+              <Button 
                 type="button" 
                 variant="text" 
-                onClick={handleDelete}
-                disabled={deleting}
-                className="text-red-600 hover:bg-red-50 px-4 hover:shadow-none bg-transparent border-transparent"
+                onClick={() => setShowDeleteModal(true)}
+                className="text-red-600 hover:bg-red-50"
               >
-                 {deleting ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Trash2 className="w-4 h-4 mr-2" />}
+                 <Trash2 className="w-4 h-4 mr-2" />
                  Cancel Appointment
-              </MaterialButton>
+              </Button>
 
               <div className="flex items-center gap-3">
                  <Link href="/appointments">
-                  <MaterialButton type="button" variant="outlined">
+                  <Button type="button" variant="outlined">
                     Back
-                  </MaterialButton>
+                  </Button>
                 </Link>
-                <MaterialButton 
+                <Button 
                     type="submit" 
-                    disabled={saving}
-                    className="bg-blue-600 hover:bg-blue-700 text-white shadow-lg shadow-blue-600/20"
+                    isLoading={saving}
                 >
-                    {saving ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Save className="w-4 h-4 mr-2" />}
+                    <Save className="w-4 h-4 mr-2" />
                     Save Changes
-                </MaterialButton>
+                </Button>
               </div>
             </div>
           </form>
-        </MaterialCard>
-      </div>
+        </CardContent>
+      </Card>
+
+      <DeleteConfirmationModal
+        isOpen={showDeleteModal}
+        itemName={`appointment with ${formData.patientName}`}
+        onConfirm={handleDelete}
+        onCancel={() => setShowDeleteModal(false)}
+      />
     </div>
   );
 }

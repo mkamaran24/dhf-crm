@@ -1,74 +1,184 @@
-import { Card } from "@/components/Card";
-import { Users, DollarSign, TrendingUp, Calendar } from "lucide-react";
+"use client";
 
-const stats = [
-  { label: "Total Patients", value: "1,294", icon: Users, change: "+12%", color: "text-blue-600", bg: "bg-blue-100" },
-  { label: "Revenue", value: "$42,500", icon: DollarSign, change: "+8%", color: "text-green-600", bg: "bg-green-100" },
-  { label: "Growth", value: "24.5%", icon: TrendingUp, change: "+2.1%", color: "text-purple-600", bg: "bg-purple-100" },
-  { label: "Appointments", value: "48", icon: Calendar, change: "-4%", color: "text-orange-600", bg: "bg-orange-100" },
-];
+import Link from "next/link";
+import { 
+  Users, 
+  UserPlus, 
+  Calendar, 
+  DollarSign, 
+  AlertCircle, 
+  CheckSquare,
+  TrendingUp,
+  Download,
+  Loader2
+} from "lucide-react";
+import { Button, Card } from "@/src/shared/components/ui";
+import { KPICard, RecentActivityCard, UpcomingAppointmentsCard } from "@/src/features/dashboard/components";
+import { useDashboard } from "@/src/features/dashboard/hooks/use-dashboard";
+import { formatCurrency } from "@/src/shared/lib/utils";
+import { exportToPDF } from "@/src/shared/lib/export";
 
 export default function DashboardPage() {
+  const { kpis, recentActivity, upcomingAppointments, isLoading } = useDashboard();
+
+  const handleExportDashboard = () => {
+    if (!kpis) return;
+
+    const headers = ['Metric', 'Value'];
+    const data = [
+      ['Total Leads', kpis.totalLeads.toString()],
+      ['Lead Conversion Rate', `${kpis.leadConversionRate}%`],
+      ['Total Patients', kpis.totalPatients.toString()],
+      ['Total Appointments', kpis.totalAppointments.toString()],
+      ['Appointments Today', kpis.appointmentsToday.toString()],
+      ['No-Show Rate', `${kpis.noShowRate}%`],
+      ['Total Revenue', formatCurrency(kpis.totalRevenue)],
+      ['Revenue Growth', `${kpis.revenueGrowth}%`],
+      ['Pending Tasks', kpis.pendingTasks.toString()],
+      ['Overdue Tasks', kpis.overdueTasks.toString()],
+    ];
+
+    exportToPDF('Dashboard Report', headers, data, 'dashboard-report.pdf');
+  };
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <Loader2 className="w-8 h-8 text-blue-600 animate-spin" />
+      </div>
+    );
+  }
+
+  if (!kpis) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <p className="text-gray-500">Failed to load dashboard data</p>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-gray-800">Dashboard Overview</h1>
-        <button className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium shadow-sm transition-colors">
-          Download Report
-        </button>
+        <div>
+          <h1 className="text-2xl font-bold text-gray-800">Dashboard Overview</h1>
+          <p className="text-sm text-gray-500 mt-1">Key metrics and recent activity</p>
+        </div>
+        <Button variant="outlined" onClick={handleExportDashboard}>
+          <Download className="w-4 h-4 mr-2" />
+          Export Report
+        </Button>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        {stats.map((stat) => (
-          <Card key={stat.label} className="flex items-center gap-4 transition-transform hover:-translate-y-1 duration-200">
-            <div className={`w-12 h-12 rounded-full flex items-center justify-center ${stat.bg} ${stat.color}`}>
-              <stat.icon className="w-6 h-6" />
-            </div>
-            <div>
-              <p className="text-sm text-gray-500 font-medium">{stat.label}</p>
-              <h3 className="text-2xl font-bold text-gray-900">{stat.value}</h3>
-              <span className={`text-xs font-medium ${stat.change.startsWith("+") ? "text-green-600" : "text-red-500"}`}>
-                {stat.change} last month
-              </span>
-            </div>
-          </Card>
-        ))}
+        <KPICard
+          label="Total Leads"
+          value={kpis.totalLeads}
+          icon={UserPlus}
+          color="text-blue-600"
+          bgColor="bg-blue-100"
+        />
+        <KPICard
+          label="Lead Conversion"
+          value={`${kpis.leadConversionRate}%`}
+          icon={TrendingUp}
+          trend={kpis.leadConversionRate}
+          color="text-green-600"
+          bgColor="bg-green-100"
+        />
+        <KPICard
+          label="Total Patients"
+          value={kpis.totalPatients}
+          icon={Users}
+          color="text-purple-600"
+          bgColor="bg-purple-100"
+        />
+        <KPICard
+          label="Today's Appointments"
+          value={kpis.appointmentsToday}
+          icon={Calendar}
+          color="text-orange-600"
+          bgColor="bg-orange-100"
+        />
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <KPICard
+          label="Total Revenue"
+          value={formatCurrency(kpis.totalRevenue)}
+          icon={DollarSign}
+          trend={kpis.revenueGrowth}
+          color="text-green-600"
+          bgColor="bg-green-100"
+        />
+        <KPICard
+          label="No-Show Rate"
+          value={`${kpis.noShowRate}%`}
+          icon={AlertCircle}
+          color="text-red-600"
+          bgColor="bg-red-100"
+        />
+        <KPICard
+          label="Pending Tasks"
+          value={kpis.pendingTasks}
+          icon={CheckSquare}
+          color="text-blue-600"
+          bgColor="bg-blue-100"
+        />
+        <KPICard
+          label="Overdue Tasks"
+          value={kpis.overdueTasks}
+          icon={AlertCircle}
+          color="text-red-600"
+          bgColor="bg-red-100"
+        />
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <Card className="lg:col-span-2">
-          <h2 className="text-lg font-bold text-gray-800 mb-4">Recent Activity</h2>
-          <div className="space-y-4">
-            {[1, 2, 3, 4].map((i) => (
-              <div key={i} className="flex items-center gap-4 py-3 border-b border-gray-50 last:border-0 hover:bg-gray-50 px-2 rounded-lg transition-colors">
-                <div className="w-10 h-10 rounded-full bg-gray-200 flex-shrink-0" />
-                <div className="flex-1">
-                  <p className="text-sm font-medium text-gray-900">New patient registration</p>
-                  <p className="text-xs text-gray-500">2 hours ago</p>
-                </div>
-                <button className="text-sm text-blue-600 font-medium hover:underline">View</button>
-              </div>
-            ))}
-          </div>
-        </Card>
+        <div className="lg:col-span-2">
+          <RecentActivityCard activities={recentActivity} />
+        </div>
+        <div>
+          <UpcomingAppointmentsCard appointments={upcomingAppointments} />
+        </div>
+      </div>
 
-        <Card>
-          <h2 className="text-lg font-bold text-gray-800 mb-4">Upcoming Appointments</h2>
-          <div className="space-y-4">
-             {[1, 2, 3].map((i) => (
-              <div key={i} className="flex items-start gap-3 p-3 bg-gray-50 rounded-lg border border-gray-100">
-                <div className="text-center bg-white p-2 rounded border border-gray-200 shadow-sm">
-                  <span className="block text-xs font-bold text-gray-500">DEC</span>
-                  <span className="block text-lg font-bold text-gray-800">12</span>
-                </div>
-                <div>
-                  <p className="text-sm font-bold text-gray-900">Dr. Smith Consultation</p>
-                  <p className="text-xs text-gray-500">10:00 AM - 11:00 AM</p>
-                </div>
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <Link href="/leads" className="block">
+          <Card className="p-6 hover:shadow-lg transition-all cursor-pointer border-l-4 border-l-blue-500">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-gray-500 font-medium mb-1">Manage Leads</p>
+                <p className="text-2xl font-bold text-gray-900">{kpis.totalLeads}</p>
               </div>
-            ))}
-          </div>
-        </Card>
+              <UserPlus className="w-8 h-8 text-blue-500" />
+            </div>
+          </Card>
+        </Link>
+
+        <Link href="/patients" className="block">
+          <Card className="p-6 hover:shadow-lg transition-all cursor-pointer border-l-4 border-l-purple-500">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-gray-500 font-medium mb-1">Active Patients</p>
+                <p className="text-2xl font-bold text-gray-900">{kpis.totalPatients}</p>
+              </div>
+              <Users className="w-8 h-8 text-purple-500" />
+            </div>
+          </Card>
+        </Link>
+
+        <Link href="/tasks" className="block">
+          <Card className="p-6 hover:shadow-lg transition-all cursor-pointer border-l-4 border-l-green-500">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-gray-500 font-medium mb-1">Active Tasks</p>
+                <p className="text-2xl font-bold text-gray-900">{kpis.pendingTasks}</p>
+              </div>
+              <CheckSquare className="w-8 h-8 text-green-500" />
+            </div>
+          </Card>
+        </Link>
       </div>
     </div>
   );

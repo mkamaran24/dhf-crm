@@ -1,16 +1,18 @@
-
 import { NextResponse } from "next/server";
-import { patients, addPatient } from "@/lib/data";
+import { patients, addPatient } from "@/src/shared/services/data-store";
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
+  
+  const page = parseInt(searchParams.get("page") || "1");
+  const limit = parseInt(searchParams.get("limit") || "20");
   const search = searchParams.get("search")?.toLowerCase() || null;
   const status = searchParams.get("status");
 
   let filteredPatients = [...patients];
 
   if (status && status !== 'All') {
-      filteredPatients = filteredPatients.filter(p => p.status === status);
+    filteredPatients = filteredPatients.filter(p => p.status === status);
   }
 
   if (search) {
@@ -21,7 +23,20 @@ export async function GET(request: Request) {
     );
   }
 
-  return NextResponse.json(filteredPatients);
+  const startIndex = (page - 1) * limit;
+  const endIndex = startIndex + limit;
+  const paginatedPatients = filteredPatients.slice(startIndex, endIndex);
+
+  return NextResponse.json({
+    patients: paginatedPatients,
+    pagination: {
+      page,
+      limit,
+      total: filteredPatients.length,
+      totalPages: Math.ceil(filteredPatients.length / limit),
+      hasMore: endIndex < filteredPatients.length,
+    },
+  });
 }
 
 export async function POST(request: Request) {

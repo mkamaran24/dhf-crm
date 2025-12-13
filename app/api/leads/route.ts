@@ -1,6 +1,6 @@
-
 import { NextResponse } from "next/server";
-import { leads, addLead, LeadStatus } from "@/lib/data";
+import { leads, addLead } from "@/src/shared/services/data-store";
+import { LeadStatus } from "@/src/shared/types";
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
