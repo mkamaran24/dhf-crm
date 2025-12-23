@@ -15,7 +15,7 @@ export const REFERRAL_SOURCES = [
   { value: "Other", label: "Other", isPerson: false },
 ] as const;
 
-export const LEAD_STATUSES = ["New", "Contacted", "Converted"] as const;
+export const LEAD_STATUSES = ["Contacted", "Converted"] as const;
 
 export const PATIENT_STATUSES = ["Active", "Inactive", "Archived"] as const;
 

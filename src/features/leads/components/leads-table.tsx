@@ -13,12 +13,10 @@ interface LeadsTableProps {
   onDelete: (leadId: string, leadName: string) => void;
 }
 
-const LEAD_STATUSES: LeadStatus[] = ["New", "Contacted", "Converted"];
+const LEAD_STATUSES: LeadStatus[] = ["Contacted", "Converted"];
 
 function getStatusBadgeColor(status: LeadStatus) {
   switch (status) {
-    case "New":
-      return "bg-blue-100 text-blue-700";
     case "Contacted":
       return "bg-yellow-100 text-yellow-700";
     case "Converted":

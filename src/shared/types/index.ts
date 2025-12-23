@@ -1,4 +1,4 @@
-export type LeadStatus = "New" | "Contacted" | "Converted";
+export type LeadStatus = "Contacted" | "Converted";
 export type PatientStatus = "Active" | "Inactive" | "Archived";
 export type TaskPriority = "Low" | "Medium" | "High";
 export type TaskStatus = "Pending" | "Done";
