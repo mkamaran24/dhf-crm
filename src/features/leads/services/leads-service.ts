@@ -14,7 +14,6 @@ export const leadsService = {
     if (params.page) searchParams.append('page', params.page.toString());
     if (params.limit) searchParams.append('limit', params.limit.toString());
     if (params.status) searchParams.append('status', params.status);
-    if (params.source) searchParams.append('source', params.source);
     if (params.search) searchParams.append('search', params.search);
     
     return api.get<LeadsResponse>(`/api/leads?${searchParams}`);

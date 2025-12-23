@@ -1,7 +1,6 @@
 "use client";
 
 import { Search, X, ChevronDown } from "lucide-react";
-import { LEAD_SOURCES } from "@/src/shared/constants";
 import { LeadStatus } from "@/src/shared/types";
 import { LeadFilters } from "../types";
 
@@ -12,7 +11,6 @@ interface LeadsFiltersProps {
   searchQuery: string;
   onSearchChange: (value: string) => void;
   onStatusChange: (value: string) => void;
-  onSourceChange: (value: string) => void;
   onClearFilters: () => void;
 }
 
@@ -21,10 +19,9 @@ export function LeadsFilters({
   searchQuery,
   onSearchChange,
   onStatusChange,
-  onSourceChange,
   onClearFilters,
 }: LeadsFiltersProps) {
-  const hasActiveFilters = searchQuery || filters.status || filters.source;
+  const hasActiveFilters = searchQuery || filters.status;
 
   return (
     <div className="bg-white rounded-xl border border-gray-200 p-4">
@@ -54,20 +51,6 @@ export function LeadsFilters({
           <ChevronDown className="absolute right-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
         </div>
 
-        <div className="relative min-w-[180px]">
-          <select
-            value={filters.source || ""}
-            onChange={(e) => onSourceChange(e.target.value)}
-            className="w-full px-4 py-2 pr-10 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm appearance-none bg-white cursor-pointer"
-          >
-            <option value="">All Sources</option>
-            {LEAD_SOURCES.map(source => (
-              <option key={source} value={source}>{source}</option>
-            ))}
-          </select>
-          <ChevronDown className="absolute right-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
-        </div>
-
         {hasActiveFilters && (
           <button
             onClick={onClearFilters}
@@ -90,11 +73,6 @@ export function LeadsFilters({
           {filters.status && (
             <span className="text-xs bg-purple-100 text-purple-700 px-2 py-1 rounded">
               Status: {filters.status}
-            </span>
-          )}
-          {filters.source && (
-            <span className="text-xs bg-green-100 text-green-700 px-2 py-1 rounded">
-              Source: {filters.source}
             </span>
           )}
         </div>

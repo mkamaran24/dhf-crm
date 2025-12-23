@@ -28,7 +28,6 @@ export interface Patient {
   lastVisit?: string;
   nextVisit?: string;
   status: PatientStatus;
-  balance: number;
   visits?: Visit[];
   documents?: PatientDocument[];
   createdAt: string;

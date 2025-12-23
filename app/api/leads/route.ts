@@ -9,18 +9,12 @@ export async function GET(request: Request) {
   const page = parseInt(searchParams.get("page") || "1");
   const limit = parseInt(searchParams.get("limit") || "20");
   const status = searchParams.get("status") as LeadStatus | null;
-  const source = searchParams.get("source") || null;
   const search = searchParams.get("search")?.toLowerCase() || null;
   
-  // Filter leads
   let filteredLeads = [...leads];
   
   if (status) {
     filteredLeads = filteredLeads.filter(lead => lead.status === status);
-  }
-  
-  if (source) {
-    filteredLeads = filteredLeads.filter(lead => lead.source === source);
   }
   
   if (search) {

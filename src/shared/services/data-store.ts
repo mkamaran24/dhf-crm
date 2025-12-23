@@ -5,24 +5,65 @@ import { Task } from '@/src/features/tasks/types';
 import { Journey } from '@/src/features/journey/types';
 import { User } from '@/src/shared/types/user';
 import { JourneyStage } from '@/src/shared/types';
+import { IRAQI_CITIES, REFERRAL_SOURCES } from '@/src/shared/constants';
 
 const generateMockLeads = (): Lead[] => {
   const firstNames = ["Alice", "Bob", "Charlie", "Diana", "Edward", "Fiona", "George", "Hannah", "Ian", "Julia"];
   const lastNames = ["Smith", "Johnson", "Williams", "Brown", "Jones", "Garcia", "Miller", "Davis", "Rodriguez", "Martinez"];
-  const sources = ["Website", "Referral", "Ad Campaign", "Social Media", "Cold Call", "Event"];
-  const statuses = ["New", "Contacted", "Converted"] as const;
+  const genders = ["Male", "Female"];
+  const maritalStatuses = ["Single", "Married", "Divorced", "Widowed"];
+  const languages = ["English", "Spanish", "French", "German", "Arabic"];
+  const patientTypes = ["Cardiac", "Cardiology"];
+  const commitLevels: Array<'Low' | 'Medium' | 'High' | 'Very High'> = ["Low", "Medium", "High", "Very High"];
+  const decisionInfluencers = ["Family", "Insurance", "Online Reviews", "Physician Referral"];
+  const painPoints = ["Cost", "Waiting Time", "Trust", "Proximity", "Service Quality"];
   
   const leads: Lead[] = [];
   
   for (let i = 1; i <= 50; i++) {
+    const randomInfluencers = decisionInfluencers.filter(() => Math.random() > 0.5);
+    const randomPainPoints = painPoints.filter(() => Math.random() > 0.5);
+    const randomCompetitors = Math.random() > 0.7 ? ["Competitor A", "Competitor B"] : [];
+    const referralSource = REFERRAL_SOURCES[Math.floor(Math.random() * REFERRAL_SOURCES.length)];
+    const isPersonReferral = referralSource.isPerson;
+    const budgetMinOptions = [1000000, 2000000, 3000000, 5000000, 7000000, 10000000];
+    const budgetMin = budgetMinOptions[Math.floor(Math.random() * budgetMinOptions.length)];
+    const budgetMaxOptions = [5000000, 7000000, 10000000, 15000000, 20000000, 30000000, 50000000, 70000000, 100000000];
+    const validMaxOptions = budgetMaxOptions.filter(max => max > budgetMin);
+    const budgetMax = validMaxOptions.length > 0 
+      ? validMaxOptions[Math.floor(Math.random() * validMaxOptions.length)]
+      : budgetMin + 5000000;
+    
     leads.push({
       id: i.toString(),
       firstName: firstNames[Math.floor(Math.random() * firstNames.length)],
       lastName: lastNames[Math.floor(Math.random() * lastNames.length)],
       email: `user${i}@example.com`,
-      phone: `555-${String(i).padStart(4, '0')}`,
-      source: sources[Math.floor(Math.random() * sources.length)],
-      status: statuses[Math.floor(Math.random() * statuses.length)],
+      phone: `+964 750 ${String(i).padStart(7, '0')}`,
+      status: "Contacted",
+      dob: new Date(1950 + Math.floor(Math.random() * 50), Math.floor(Math.random() * 12), Math.floor(Math.random() * 28) + 1).toISOString().split('T')[0],
+      gender: genders[Math.floor(Math.random() * genders.length)],
+      maritalStatus: maritalStatuses[Math.floor(Math.random() * maritalStatuses.length)],
+      language: languages[Math.floor(Math.random() * languages.length)],
+      country: "Iraq",
+      city: IRAQI_CITIES[Math.floor(Math.random() * IRAQI_CITIES.length)].name,
+      address: (() => {
+        const selectedCity = IRAQI_CITIES[Math.floor(Math.random() * IRAQI_CITIES.length)];
+        return selectedCity.addresses[Math.floor(Math.random() * selectedCity.addresses.length)];
+      })(),
+      patientType: patientTypes[Math.floor(Math.random() * patientTypes.length)],
+      budgetMin,
+      budgetMax,
+      referralSource: referralSource.value,
+      referralPersonName: isPersonReferral ? `${firstNames[Math.floor(Math.random() * firstNames.length)]} ${lastNames[Math.floor(Math.random() * lastNames.length)]}` : undefined,
+      referralPersonPhone: isPersonReferral ? `+964 750 ${String(Math.floor(Math.random() * 10000000)).padStart(7, '0')}` : undefined,
+      previousDoctors: Math.random() > 0.6 ? `Dr. ${firstNames[Math.floor(Math.random() * firstNames.length)]}` : "",
+      sharedEducationalMaterials: Math.random() > 0.5,
+      competitorsConsidered: randomCompetitors,
+      decisionInfluencers: randomInfluencers.length > 0 ? randomInfluencers : [],
+      painPoints: randomPainPoints.length > 0 ? randomPainPoints : [],
+      knowledgeRating: Math.floor(Math.random() * 5) + 1,
+      commitLevel: commitLevels[Math.floor(Math.random() * commitLevels.length)],
       createdAt: new Date(Date.now() - Math.random() * 90 * 24 * 60 * 60 * 1000).toISOString(),
     });
   }
@@ -57,7 +98,6 @@ export let patients: Patient[] = [
     lastVisit: '2025-11-20',
     nextVisit: '2025-12-15',
     status: 'Active',
-    balance: 150.00,
     createdAt: '2024-01-15T10:00:00Z',
     visits: [
       {
@@ -89,7 +129,6 @@ export let patients: Patient[] = [
     address: '456 Oak Ave, Springfield',
     lastVisit: '2025-10-10',
     status: 'Active',
-    balance: 0.00,
     createdAt: '2024-02-20T10:00:00Z',
     visits: [],
     documents: []
@@ -105,7 +144,6 @@ export let patients: Patient[] = [
     address: '789 Pine Ln, Springfield',
     lastVisit: '2025-09-05',
     status: 'Inactive',
-    balance: 0.00,
     createdAt: '2024-03-10T10:00:00Z',
     visits: [],
     documents: []

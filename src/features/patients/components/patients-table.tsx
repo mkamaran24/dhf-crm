@@ -1,10 +1,9 @@
 "use client";
 
 import Link from "next/link";
-import { Mail, Phone, Calendar, Edit, Trash2, DollarSign, Loader2 } from "lucide-react";
+import { Mail, Phone, Calendar, Edit, Trash2, Loader2 } from "lucide-react";
 import { Patient } from "../types";
 import { Badge } from "@/src/shared/components/ui";
-import { formatCurrency } from "@/src/shared/lib/utils";
 
 interface PatientsTableProps {
   patients: Patient[];
@@ -70,9 +69,6 @@ export function PatientsTable({
               <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
                 Status
               </th>
-              <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                Balance
-              </th>
               <th className="px-6 py-3 text-right text-xs font-semibold text-gray-600 uppercase tracking-wider">
                 Actions
               </th>
@@ -114,14 +110,6 @@ export function PatientsTable({
                   <Badge variant={getStatusVariant(patient.status)}>
                     {patient.status}
                   </Badge>
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <div className="flex items-center gap-2 text-sm">
-                    <DollarSign className="w-3.5 h-3.5 text-gray-400" />
-                    <span className={patient.balance > 0 ? "text-red-600 font-medium" : "text-gray-600"}>
-                      {formatCurrency(patient.balance)}
-                    </span>
-                  </div>
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-right">
                   <div className="flex items-center justify-end gap-2">

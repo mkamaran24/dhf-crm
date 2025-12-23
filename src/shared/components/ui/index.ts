@@ -1,9 +1,14 @@
 export { Button } from './button';
 export { Input } from './input';
 export { Select } from './select';
+export { Textarea } from './textarea';
+export { Slider } from './slider';
+export { SearchInput } from './search-input';
 export { Card, CardHeader, CardContent, CardFooter } from './card';
 export { Table } from './table';
 export { Modal, ModalHeader, ModalContent, ModalFooter } from './modal';
+export { SlideOver, SlideOverHeader, SlideOverContent, SlideOverFooter } from './slide-over';
+export { Tabs, TabsList, TabsTrigger, TabsContent } from './tabs';
 export { Badge } from './badge';
 export { Pagination } from './pagination';
 export { DeleteConfirmationModal } from './delete-confirmation-modal';

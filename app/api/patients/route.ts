@@ -44,7 +44,6 @@ export async function POST(request: Request) {
   const newPatient = {
     id: Math.random().toString(36).substr(2, 9),
     status: 'Active',
-    balance: 0,
     ...body,
   };
   addPatient(newPatient);

@@ -47,18 +47,16 @@ export default function PatientsPage() {
         Phone: p.phone,
         Status: p.status,
         'Last Visit': p.lastVisit || 'N/A',
-        Balance: p.balance,
       }));
       exportToExcel(exportData, 'patients.xlsx', 'Patients');
     } else {
-      const headers = ['Name', 'Email', 'Phone', 'Status', 'Last Visit', 'Balance'];
+      const headers = ['Name', 'Email', 'Phone', 'Status', 'Last Visit'];
       const data = patients.map(p => [
         `${p.firstName} ${p.lastName}`,
         p.email,
         p.phone,
         p.status,
         p.lastVisit ? new Date(p.lastVisit).toLocaleDateString() : 'N/A',
-        `$${p.balance.toFixed(2)}`,
       ]);
       exportToPDF('Patients Report', headers, data, 'patients.pdf');
     }

@@ -68,10 +68,10 @@ export function LeadsTable({
                 Contact
               </th>
               <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                Source
+                Status
               </th>
               <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                Status
+                Budget Range
               </th>
               <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
                 Created
@@ -99,14 +99,9 @@ export function LeadsTable({
                     </div>
                     <div className="flex items-center gap-2 text-sm text-gray-600">
                       <Phone className="w-3.5 h-3.5 text-gray-400" />
-                      <span>{lead.phone}</span>
-                    </div>
+                    <span>{lead.phone}</span>
                   </div>
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <span className="text-xs bg-blue-50 text-blue-700 px-2 py-1 rounded-full font-medium">
-                    {lead.source}
-                  </span>
+                </div>
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap">
                   <select
@@ -118,6 +113,15 @@ export function LeadsTable({
                       <option key={status} value={status}>{status}</option>
                     ))}
                   </select>
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap">
+                  {lead.budgetMin !== undefined && lead.budgetMax !== undefined ? (
+                    <span className="text-sm text-gray-600">
+                      {lead.budgetMin.toLocaleString()} - {lead.budgetMax.toLocaleString()} IQD
+                    </span>
+                  ) : (
+                    <span className="text-sm text-gray-400">Not set</span>
+                  )}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap">
                   <div className="flex items-center gap-2 text-sm text-gray-500">

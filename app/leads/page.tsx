@@ -19,7 +19,6 @@ export default function LeadsPage() {
     pagination,
     setSearchQuery,
     setStatusFilter,
-    setSourceFilter,
     clearFilters,
     updateLeadStatus,
     deleteLead,
@@ -39,7 +38,7 @@ export default function LeadsPage() {
     setDeleteModal(null);
   };
 
-  const hasActiveFilters = Boolean(searchQuery || filters.status || filters.source);
+  const hasActiveFilters = Boolean(searchQuery || filters.status);
 
   return (
     <div className="space-y-6">
@@ -61,7 +60,6 @@ export default function LeadsPage() {
         searchQuery={searchQuery}
         onSearchChange={setSearchQuery}
         onStatusChange={setStatusFilter}
-        onSourceChange={setSourceFilter}
         onClearFilters={clearFilters}
       />
 

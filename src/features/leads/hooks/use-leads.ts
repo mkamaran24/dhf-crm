@@ -22,7 +22,6 @@ export function useLeads() {
         limit: pagination.limit,
         search: debouncedSearch,
         status: filters.status,
-        source: filters.source,
       });
       
       setLeads(data.leads);
@@ -40,7 +39,7 @@ export function useLeads() {
 
   useEffect(() => {
     resetPagination();
-  }, [debouncedSearch, filters.status, filters.source, resetPagination]);
+  }, [debouncedSearch, filters.status, resetPagination]);
 
   const updateLeadStatus = async (leadId: string, status: LeadStatus) => {
     setLeads(leads.map(l => l.id === leadId ? { ...l, status } : l));
@@ -74,10 +73,6 @@ export function useLeads() {
     setFilters(prev => ({ ...prev, status: status as LeadStatus || undefined }));
   };
 
-  const setSourceFilter = (source: string) => {
-    setFilters(prev => ({ ...prev, source: source || undefined }));
-  };
-
   const clearFilters = () => {
     setSearchQuery("");
     setFilters({});
@@ -91,7 +86,6 @@ export function useLeads() {
     pagination,
     setSearchQuery,
     setStatusFilter,
-    setSourceFilter,
     clearFilters,
     updateLeadStatus,
     deleteLead,

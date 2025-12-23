@@ -2,14 +2,14 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { 
-  LayoutDashboard, 
-  Users, 
-  UserPlus, 
-  Calendar, 
-  CheckSquare, 
-  FileText, 
-  Settings, 
+import {
+  LayoutDashboard,
+  Users,
+  UserPlus,
+  Calendar,
+  CheckSquare,
+  FileText,
+  Settings,
   LogOut,
   Map
 } from "lucide-react";
@@ -58,11 +58,11 @@ export function Sidebar() {
                     : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
                 )}
               >
-                <item.icon 
+                <item.icon
                   className={cn(
-                    "w-5 h-5 transition-transform duration-300 group-hover:scale-110", 
+                    "w-5 h-5 transition-transform duration-300 group-hover:scale-110",
                     isActive ? "text-white" : "text-gray-400 group-hover:text-blue-600"
-                  )} 
+                  )}
                 />
                 <span className="relative z-10">{item.name}</span>
               </Link>

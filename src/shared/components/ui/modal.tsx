@@ -16,7 +16,7 @@ export function Modal({ isOpen, onClose, children, size = "md" }: ModalProps) {
     sm: "max-w-sm",
     md: "max-w-md",
     lg: "max-w-lg",
-    xl: "max-w-xl"
+    xl: "max-w-4xl"
   };
 
   return (
