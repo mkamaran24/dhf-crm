@@ -5,7 +5,6 @@ import { usePathname } from "next/navigation";
 import {
   LayoutDashboard,
   Users,
-  UserPlus,
   Calendar,
   CheckSquare,
   FileText,
@@ -17,8 +16,7 @@ import { cn } from "@/src/shared/lib/utils";
 
 const navigation = [
   { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
-  { name: "Leads", href: "/leads", icon: UserPlus },
-  { name: "Patients", href: "/patients", icon: Users },
+  { name: "Contacts", href: "/leads", icon: Users },
   { name: "Journeys", href: "/journey", icon: Map },
   { name: "Appointments", href: "/appointments", icon: Calendar },
   { name: "Tasks", href: "/tasks", icon: CheckSquare },
@@ -46,7 +44,9 @@ export function Sidebar() {
         </p>
         <div className="space-y-1.5">
           {navigation.map((item) => {
-            const isActive = pathname.startsWith(item.href);
+            const isActive = item.href === "/leads" 
+              ? pathname.startsWith("/leads") || pathname.startsWith("/patients")
+              : pathname.startsWith(item.href);
             return (
               <Link
                 key={item.name}

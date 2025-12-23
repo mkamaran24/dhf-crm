@@ -101,7 +101,7 @@ export default function EditLeadPage() {
             sharedEducationalMaterials: lead.sharedEducationalMaterials || false,
             sharedEducationalMaterialsNotes: lead.sharedEducationalMaterialsNotes || "",
             sharedEducationalMaterialsFiles: lead.sharedEducationalMaterialsFiles || [],
-            hasCompetitorsConsidered: lead.hasCompetitorsConsidered ?? (lead.competitorsConsidered && lead.competitorsConsidered.length > 0),
+            hasCompetitorsConsidered: lead.hasCompetitorsConsidered ?? !!(lead.competitorsConsidered && lead.competitorsConsidered.length > 0),
             competitorsConsidered: lead.competitorsConsidered || [],
             decisionInfluencers: lead.decisionInfluencers || [],
             painPoints: lead.painPoints || [],

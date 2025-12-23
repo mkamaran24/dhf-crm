@@ -27,7 +27,7 @@ export function useDashboard() {
           return aptDate.getTime() === today.getTime();
         }).length;
 
-        const totalRevenue = patients.reduce((sum, p) => sum + (p.balance || 0), 0);
+        const totalRevenue = 0;
         
         const pendingTasks = tasks.filter(t => t.status === 'Pending').length;
         const overdueTasks = tasks.filter(t => 
@@ -52,7 +52,7 @@ export function useDashboard() {
             id: `lead-${l.id}`,
             type: 'lead' as const,
             title: 'New Lead Created',
-            description: `${l.firstName} ${l.lastName} from ${l.source}`,
+            description: `${l.firstName} ${l.lastName}${l.referralSource ? ` from ${l.referralSource}` : ''}`,
             timestamp: l.createdAt,
           })),
           ...appointments.slice(0, 2).map(apt => ({

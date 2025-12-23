@@ -28,7 +28,7 @@ export function Tabs({ value, onValueChange, children, className }: TabsProps) {
 export function TabsList({ children, className }: { children: ReactNode; className?: string }) {
   return (
     <div className={cn(
-      "inline-flex h-10 items-center justify-center rounded-lg bg-gray-100 p-1",
+      "inline-flex h-11 items-center justify-center rounded-xl bg-gray-100 p-1.5 shadow-sm",
       className
     )}>
       {children}
@@ -54,11 +54,11 @@ export function TabsTrigger({
     <button
       onClick={() => context.onValueChange(value)}
       className={cn(
-        "inline-flex items-center justify-center whitespace-nowrap rounded-md px-3 py-1.5 text-sm font-medium transition-all",
+        "inline-flex items-center justify-center whitespace-nowrap rounded-lg px-4 py-2 text-sm font-semibold transition-all duration-200",
         "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2",
         isActive
-          ? "bg-white text-gray-900 shadow-sm"
-          : "text-gray-600 hover:text-gray-900 hover:bg-gray-50",
+          ? "bg-white text-blue-600 shadow-md shadow-blue-100/50"
+          : "text-gray-600 hover:text-gray-900 hover:bg-white/50",
         className
       )}
     >
