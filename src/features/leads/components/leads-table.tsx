@@ -1,7 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { Mail, Phone, Calendar, Edit, Trash2, Map, Loader2 } from "lucide-react";
+import { Mail, Phone, Calendar, Edit, Trash2, Map, Loader2, FileText } from "lucide-react";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/src/shared/components/ui/tooltip";
 import { Lead } from "../types";
 import { LeadStatus } from "@/src/shared/types";
 
@@ -83,11 +84,27 @@ export function LeadsTable({
             {leads.map((lead) => (
               <tr key={lead.id} className="hover:bg-gray-50 transition-colors">
                 <td className="px-6 py-4 whitespace-nowrap">
-                  <Link href={`/leads/${lead.id}`} className="group">
-                    <div className="font-medium text-gray-900 group-hover:text-blue-600 transition-colors">
-                      {lead.name}
-                    </div>
-                  </Link>
+                  <div className="flex items-center gap-2">
+                    <Link href={`/leads/${lead.id}`} className="group">
+                      <div className="font-medium text-gray-900 group-hover:text-blue-600 transition-colors">
+                        {lead.name}
+                      </div>
+                    </Link>
+                    {lead.notes && (
+                      <TooltipProvider>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <div className="p-1 bg-amber-50 rounded cursor-help">
+                              <FileText className="w-3 h-3 text-amber-600" />
+                            </div>
+                          </TooltipTrigger>
+                          <TooltipContent className="max-w-xs">
+                            <p className="text-xs">{lead.notes}</p>
+                          </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
+                    )}
+                  </div>
                 </td>
                 <td className="px-6 py-4">
                   <div className="space-y-1">
@@ -130,10 +147,32 @@ export function LeadsTable({
                   </div>
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-right">
-                  <div className="flex items-center justify-end gap-2">
+                  <div className="flex items-center justify-end gap-1">
+                    <Link href="/leads/progress">
+                      <button
+                        className="p-2 text-gray-400 hover:text-emerald-600 hover:bg-emerald-50 rounded-lg transition-all"
+                        title="Check Lead Progress"
+                      >
+                        <Map className="w-4 h-4" />
+                      </button>
+                    </Link>
+
+                    {lead.status === "Contacted" && (
+                      <Link href="/appointments/create">
+                        <button
+                          className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all"
+                          title="Quick Book Appointment"
+                        >
+                          <Calendar className="w-4 h-4" />
+                        </button>
+                      </Link>
+                    )}
+
+                    <div className="w-px h-4 bg-gray-200 mx-1" />
+
                     <Link href={`/leads/${lead.id}`}>
                       <button
-                        className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                        className="p-2 text-gray-400 hover:text-gray-900 hover:bg-gray-50 rounded-lg transition-all"
                         title="Edit lead"
                       >
                         <Edit className="w-4 h-4" />
@@ -142,7 +181,7 @@ export function LeadsTable({
 
                     <button
                       onClick={() => onDelete(lead.id, lead.name)}
-                      className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                      className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all"
                       title="Delete lead"
                     >
                       <Trash2 className="w-4 h-4" />

@@ -13,3 +13,4 @@ export { Badge } from './badge';
 export { Pagination } from './pagination';
 export { DeleteConfirmationModal } from './delete-confirmation-modal';
 export { Protected } from './protected';
+export { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from './tooltip';
