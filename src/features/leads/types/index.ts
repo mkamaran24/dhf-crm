@@ -2,10 +2,9 @@ import { LeadStatus } from '@/src/shared/types';
 
 export interface Lead {
   id: string;
-  firstName: string;
-  lastName: string;
-  email: string;
+  name: string;
   phone: string;
+  phoneSecondary?: string;
   status: LeadStatus;
   notes?: string;
   dob?: string;
@@ -31,7 +30,7 @@ export interface Lead {
   decisionInfluencers?: string[];
   painPoints?: string[];
   knowledgeRating?: number;
-  commitLevel?: 'Low' | 'Medium' | 'High' | 'Very High';
+  commitLevel?: number;
   createdAt: string;
 }
 
@@ -41,10 +40,9 @@ export interface LeadFilters {
 }
 
 export interface LeadFormData {
-  firstName: string;
-  lastName: string;
-  email: string;
+  name: string;
   phone: string;
+  phoneSecondary?: string;
   status: LeadStatus;
   notes?: string;
   dob?: string;
@@ -70,6 +68,6 @@ export interface LeadFormData {
   decisionInfluencers?: string[];
   painPoints?: string[];
   knowledgeRating?: number;
-  commitLevel?: 'Low' | 'Medium' | 'High' | 'Very High';
+  commitLevel?: number;
 }
 

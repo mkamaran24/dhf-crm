@@ -10,14 +10,15 @@ import {
   FileText,
   Settings,
   LogOut,
-  Map
+  Map,
+  UserPlus
 } from "lucide-react";
 import { cn } from "@/src/shared/lib/utils";
 
 const navigation = [
   { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
-  { name: "Contacts", href: "/leads", icon: Users },
-  { name: "Journeys", href: "/journey", icon: Map },
+  { name: "Leads", href: "/leads", icon: UserPlus },
+  { name: "Patients", href: "/patients", icon: Users },
   { name: "Appointments", href: "/appointments", icon: Calendar },
   { name: "Tasks", href: "/tasks", icon: CheckSquare },
   { name: "Reports", href: "/reports", icon: FileText },
@@ -44,9 +45,7 @@ export function Sidebar() {
         </p>
         <div className="space-y-1.5">
           {navigation.map((item) => {
-            const isActive = item.href === "/leads" 
-              ? pathname.startsWith("/leads") || pathname.startsWith("/patients")
-              : pathname.startsWith(item.href);
+            const isActive = pathname.startsWith(item.href);
             return (
               <Link
                 key={item.name}

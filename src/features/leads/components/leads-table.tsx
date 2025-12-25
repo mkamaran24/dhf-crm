@@ -85,21 +85,23 @@ export function LeadsTable({
                 <td className="px-6 py-4 whitespace-nowrap">
                   <Link href={`/leads/${lead.id}`} className="group">
                     <div className="font-medium text-gray-900 group-hover:text-blue-600 transition-colors">
-                      {lead.firstName} {lead.lastName}
+                      {lead.name}
                     </div>
                   </Link>
                 </td>
                 <td className="px-6 py-4">
                   <div className="space-y-1">
                     <div className="flex items-center gap-2 text-sm text-gray-600">
-                      <Mail className="w-3.5 h-3.5 text-gray-400" />
-                      <span className="truncate max-w-[200px]">{lead.email}</span>
-                    </div>
-                    <div className="flex items-center gap-2 text-sm text-gray-600">
                       <Phone className="w-3.5 h-3.5 text-gray-400" />
-                    <span>{lead.phone}</span>
+                      <span>{lead.phone}</span>
+                    </div>
+                    {lead.phoneSecondary && (
+                      <div className="flex items-center gap-2 text-sm text-gray-500">
+                        <Phone className="w-3.5 h-3.5 text-gray-400" />
+                        <span className="text-xs">{lead.phoneSecondary} (Alt)</span>
+                      </div>
+                    )}
                   </div>
-                </div>
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap">
                   <select
@@ -130,23 +132,16 @@ export function LeadsTable({
                 <td className="px-6 py-4 whitespace-nowrap text-right">
                   <div className="flex items-center justify-end gap-2">
                     <Link href={`/leads/${lead.id}`}>
-                      <button 
+                      <button
                         className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
                         title="Edit lead"
                       >
                         <Edit className="w-4 h-4" />
                       </button>
                     </Link>
-                    <Link href={`/journey/${lead.id}`}>
-                      <button 
-                        className="p-2 text-gray-400 hover:text-purple-600 hover:bg-purple-50 rounded-lg transition-colors"
-                        title="View Journey"
-                      >
-                        <Map className="w-4 h-4" />
-                      </button>
-                    </Link>
-                    <button 
-                      onClick={() => onDelete(lead.id, `${lead.firstName} ${lead.lastName}`)}
+
+                    <button
+                      onClick={() => onDelete(lead.id, lead.name)}
                       className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
                       title="Delete lead"
                     >

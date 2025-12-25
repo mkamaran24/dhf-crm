@@ -5,7 +5,7 @@ export type TaskStatus = "Pending" | "Done";
 export type AppointmentStatus = "scheduled" | "confirmed" | "completed" | "cancelled";
 export type UserRole = "Admin" | "Doctor" | "Staff";
 export type Gender = "Male" | "Female" | "Other";
-export type JourneyStage = "Lead" | "Contacted" | "Converted" | "Onboarding" | "Active Patient";
+
 
 export interface PaginationInfo {
   page: number;

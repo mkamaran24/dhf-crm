@@ -28,9 +28,9 @@ export function useDashboard() {
         }).length;
 
         const totalRevenue = 0;
-        
+
         const pendingTasks = tasks.filter(t => t.status === 'Pending').length;
-        const overdueTasks = tasks.filter(t => 
+        const overdueTasks = tasks.filter(t =>
           t.status === 'Pending' && new Date(t.dueDate) < new Date()
         ).length;
 
@@ -52,7 +52,7 @@ export function useDashboard() {
             id: `lead-${l.id}`,
             type: 'lead' as const,
             title: 'New Lead Created',
-            description: `${l.firstName} ${l.lastName}${l.referralSource ? ` from ${l.referralSource}` : ''}`,
+            description: `${l.name}${l.referralSource ? ` from ${l.referralSource}` : ''}`,
             timestamp: l.createdAt,
           })),
           ...appointments.slice(0, 2).map(apt => ({
@@ -76,9 +76,9 @@ export function useDashboard() {
             doctor: apt.doctor,
             date: apt.date,
             type: apt.type,
-            time: new Date(apt.date).toLocaleTimeString('en-US', { 
-              hour: '2-digit', 
-              minute: '2-digit' 
+            time: new Date(apt.date).toLocaleTimeString('en-US', {
+              hour: '2-digit',
+              minute: '2-digit'
             }),
           }));
 

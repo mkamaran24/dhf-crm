@@ -2,24 +2,25 @@ import { Lead } from '@/src/features/leads/types';
 import { Patient } from '@/src/features/patients/types';
 import { Appointment } from '@/src/features/appointments/types';
 import { Task } from '@/src/features/tasks/types';
-import { Journey } from '@/src/features/journey/types';
+
 import { User } from '@/src/shared/types/user';
-import { JourneyStage } from '@/src/shared/types';
+
 import { IRAQI_CITIES, REFERRAL_SOURCES } from '@/src/shared/constants';
 
 const generateMockLeads = (): Lead[] => {
+  /* New Lead Data Structure */
   const firstNames = ["Alice", "Bob", "Charlie", "Diana", "Edward", "Fiona", "George", "Hannah", "Ian", "Julia"];
   const lastNames = ["Smith", "Johnson", "Williams", "Brown", "Jones", "Garcia", "Miller", "Davis", "Rodriguez", "Martinez"];
   const genders = ["Male", "Female"];
   const maritalStatuses = ["Single", "Married", "Divorced", "Widowed"];
-  const languages = ["English", "Spanish", "French", "German", "Arabic"];
+  const languages = ["English", "Arabic", "Kurdish"];
   const patientTypes = ["Cardiac", "Cardiology"];
-  const commitLevels: Array<'Low' | 'Medium' | 'High' | 'Very High'> = ["Low", "Medium", "High", "Very High"];
+  const commitLevels: number[] = [15, 40, 65, 90];
   const decisionInfluencers = ["Family", "Insurance", "Online Reviews", "Physician Referral"];
   const painPoints = ["Cost", "Waiting Time", "Trust", "Proximity", "Service Quality"];
-  
+
   const leads: Lead[] = [];
-  
+
   for (let i = 1; i <= 50; i++) {
     const randomInfluencers = decisionInfluencers.filter(() => Math.random() > 0.5);
     const randomPainPoints = painPoints.filter(() => Math.random() > 0.5);
@@ -30,16 +31,18 @@ const generateMockLeads = (): Lead[] => {
     const budgetMin = budgetMinOptions[Math.floor(Math.random() * budgetMinOptions.length)];
     const budgetMaxOptions = [5000000, 7000000, 10000000, 15000000, 20000000, 30000000, 50000000, 70000000, 100000000];
     const validMaxOptions = budgetMaxOptions.filter(max => max > budgetMin);
-    const budgetMax = validMaxOptions.length > 0 
+    const budgetMax = validMaxOptions.length > 0
       ? validMaxOptions[Math.floor(Math.random() * validMaxOptions.length)]
       : budgetMin + 5000000;
-    
+
+    const firstName = firstNames[Math.floor(Math.random() * firstNames.length)];
+    const lastName = lastNames[Math.floor(Math.random() * lastNames.length)];
+
     leads.push({
       id: i.toString(),
-      firstName: firstNames[Math.floor(Math.random() * firstNames.length)],
-      lastName: lastNames[Math.floor(Math.random() * lastNames.length)],
-      email: `user${i}@example.com`,
+      name: `${firstName} ${lastName}`,
       phone: `+964 750 ${String(i).padStart(7, '0')}`,
+      phoneSecondary: Math.random() > 0.7 ? `+964 770 ${String(i).padStart(7, '0')}` : undefined,
       status: "Contacted",
       dob: new Date(1950 + Math.floor(Math.random() * 50), Math.floor(Math.random() * 12), Math.floor(Math.random() * 28) + 1).toISOString().split('T')[0],
       gender: genders[Math.floor(Math.random() * genders.length)],
@@ -249,137 +252,7 @@ export const deleteTask = (id: string) => {
 
 export const getTask = (id: string) => tasks.find(t => t.id === id);
 
-export let journeys: Journey[] = [
-  {
-    id: "1",
-    leadId: "1",
-    patientId: "1",
-    name: "John Doe",
-    email: "john.doe@example.com",
-    currentStage: "Active Patient",
-    progress: 100,
-    createdAt: "2023-10-01T10:00:00Z",
-    updatedAt: "2023-11-15T14:30:00Z",
-    events: [
-      {
-        id: "e1",
-        date: "2023-10-01T10:00:00Z",
-        title: "Lead Created",
-        description: "Source: Website Form",
-        type: "info",
-      },
-      {
-        id: "e2",
-        date: "2023-10-02T14:00:00Z",
-        title: "Initial Contact",
-        description: "Phone call with sales team. Interested in dental implants.",
-        type: "info",
-      },
-      {
-        id: "e3",
-        date: "2023-10-05T09:00:00Z",
-        title: "Consultation Scheduled",
-        description: "Booked for 2023-10-10",
-        type: "success",
-      },
-      {
-        id: "e4",
-        date: "2023-10-10T11:00:00Z",
-        title: "Converted to Patient",
-        description: "Signed treatment plan.",
-        type: "success",
-      },
-      {
-        id: "e5",
-        date: "2023-11-10T10:00:00Z",
-        title: "First Visit Completed",
-        description: "Initial assessment and cleaning.",
-        type: "success",
-      }
-    ]
-  },
-  {
-    id: "2",
-    leadId: "2",
-    name: "Jane Smith",
-    email: "jane.smith@example.com",
-    currentStage: "Contacted",
-    progress: 40,
-    createdAt: "2023-11-01T09:00:00Z",
-    updatedAt: "2023-11-02T16:00:00Z",
-    events: [
-      {
-        id: "e6",
-        date: "2023-11-01T09:00:00Z",
-        title: "Lead Created",
-        description: "Source: Referral",
-        type: "info",
-      },
-      {
-        id: "e7",
-        date: "2023-11-02T16:00:00Z",
-        title: "Initial Contact Made",
-        description: "Email sent with information about services",
-        type: "success",
-      }
-    ]
-  },
-  {
-    id: "3",
-    name: "Bob Wilson",
-    email: "bob.wilson@example.com",
-    currentStage: "Lead",
-    progress: 20,
-    createdAt: "2023-12-01T09:00:00Z",
-    updatedAt: "2023-12-01T09:00:00Z",
-    events: [
-      {
-        id: "e8",
-        date: "2023-12-01T09:00:00Z",
-        title: "Lead Created",
-        description: "Source: Social Media Campaign",
-        type: "info",
-      }
-    ]
-  }
-];
 
-export const getJourney = (id: string) => journeys.find(j => j.id === id);
-
-export const updateJourneyStage = (id: string, newStage: JourneyStage) => {
-  const journey = journeys.find(j => j.id === id);
-  if (!journey) return null;
-
-  const stageMap: Record<JourneyStage, number> = {
-    "Lead": 20,
-    "Contacted": 40,
-    "Converted": 60,
-    "Onboarding": 80,
-    "Active Patient": 100,
-  };
-
-  const newEvent = {
-    id: `e${Date.now()}`,
-    date: new Date().toISOString(),
-    title: `Stage Updated: ${newStage}`,
-    description: `Journey stage changed to ${newStage}`,
-    type: "success" as const,
-  };
-
-  journeys = journeys.map(j => 
-    j.id === id 
-      ? { 
-          ...j, 
-          currentStage: newStage,
-          progress: stageMap[newStage],
-          updatedAt: new Date().toISOString(),
-          events: [...j.events, newEvent]
-        }
-      : j
-  );
-
-  return journeys.find(j => j.id === id);
-};
 
 export const currentUser: User = {
   id: 'u1',

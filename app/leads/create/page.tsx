@@ -3,14 +3,14 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { ChevronLeft, Save, UserPlus, Mail, Phone, Calendar, Globe, FileText, DollarSign, Users, MapPin, Plus, Star, CheckCircle2, AlertCircle, Target, Upload, X } from "lucide-react";
+import { ChevronLeft, Save, UserPlus, Mail, Phone, Calendar, Globe, FileText, DollarSign, Users, MapPin, Plus, Star, CheckCircle2, AlertCircle, Target, Upload, X, LayoutDashboard } from "lucide-react";
 import { Card, CardHeader, CardContent, Button, Input, Select, Textarea } from "@/src/shared/components/ui";
 import { LEAD_STATUSES, REFERRAL_SOURCES, IRAQI_CITIES } from "@/src/shared/constants";
 import Slider from '@mui/material/Slider';
 
 const GENDERS = ["Male", "Female"];
 const MARITAL_STATUSES = ["Single", "Married", "Divorced", "Widowed"];
-const LANGUAGES = ["English", "Spanish", "French", "German", "Arabic", "Hindi", "Chinese", "Other"];
+const LANGUAGES = ["English", "Arabic", "Kurdish"];
 const PATIENT_TYPES = ["Cardiac", "Cardiology"];
 const DECISION_INFLUENCERS = ["Family", "Insurance", "Online Reviews", "Physician Referral"];
 const PAIN_POINTS = ["Cost", "Waiting Time", "Trust", "Proximity", "Service Quality"];
@@ -31,10 +31,9 @@ export default function CreateLeadPage() {
   const [showAddAddress, setShowAddAddress] = useState(false);
   const [newAddress, setNewAddress] = useState("");
   const [formData, setFormData] = useState({
-    firstName: "",
-    lastName: "",
-    email: "",
+    name: "",
     phone: "",
+    phoneSecondary: "",
     status: "Contacted" as string,
     dob: "",
     gender: "",
@@ -58,7 +57,7 @@ export default function CreateLeadPage() {
     decisionInfluencers: [] as string[],
     painPoints: [] as string[],
     knowledgeRating: 0,
-    commitLevel: "" as 'Low' | 'Medium' | 'High' | 'Very High' | '',
+    commitLevel: 0,
     notes: "",
   });
 
@@ -99,7 +98,7 @@ export default function CreateLeadPage() {
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
-    
+
     if (name === "city") {
       const addresses = getAvailableAddresses(value);
       setFormData(prev => ({
@@ -185,9 +184,7 @@ export default function CreateLeadPage() {
     setFormData(prev => ({ ...prev, knowledgeRating: rating }));
   };
 
-  const handleCommitLevelClick = (level: 'Low' | 'Medium' | 'High' | 'Very High') => {
-    setFormData(prev => ({ ...prev, commitLevel: level }));
-  };
+
 
   return (
     <div className="max-w-4xl mx-auto space-y-6">
@@ -218,59 +215,50 @@ export default function CreateLeadPage() {
           </CardHeader>
           <CardContent className="p-6">
             <div className="space-y-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <Input 
-                  label="First Name" 
-                  name="firstName" 
-                  value={formData.firstName}
+              <div className="grid grid-cols-1 gap-6">
+                <Input
+                  label="Full Name"
+                  name="name"
+                  value={formData.name}
                   onChange={handleChange}
-                  placeholder="John" 
-                  required 
-                />
-                <Input 
-                  label="Last Name" 
-                  name="lastName" 
-                  value={formData.lastName}
-                  onChange={handleChange}
-                  placeholder="Doe" 
-                  required 
+                  placeholder="John Doe"
+                  required
                 />
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <Input 
-                  label="Email Address" 
-                  name="email" 
-                  type="email"
-                  value={formData.email}
-                  onChange={handleChange}
-                  placeholder="john@example.com" 
-                  required
-                  icon={<Mail className="w-4 h-4" />}
-                />
-                <Input 
-                  label="Phone Number" 
-                  name="phone" 
+                <Input
+                  label="Phone Number"
+                  name="phone"
                   type="tel"
                   value={formData.phone}
                   onChange={handleChange}
-                  placeholder="+964 750 000 0000" 
+                  placeholder="+964 750 000 0000"
                   required
+                  icon={<Phone className="w-4 h-4" />}
+                />
+                <Input
+                  label="Phone Number 2 (Optional)"
+                  name="phoneSecondary"
+                  type="tel"
+                  value={formData.phoneSecondary}
+                  onChange={handleChange}
+                  placeholder="+964 770 000 0000"
                   icon={<Phone className="w-4 h-4" />}
                 />
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <Input 
-                  label="Date of Birth" 
-                  name="dob" 
+                <Input
+                  label="Date of Birth"
+                  name="dob"
                   type="date"
                   value={formData.dob}
                   onChange={handleChange}
                   icon={<Calendar className="w-4 h-4" />}
                 />
-                <Select 
-                  label="Gender" 
+                <Select
+                  label="Gender"
                   name="gender"
                   value={formData.gender}
                   onChange={handleChange}
@@ -279,15 +267,15 @@ export default function CreateLeadPage() {
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <Select 
-                  label="Marital Status" 
+                <Select
+                  label="Marital Status"
                   name="maritalStatus"
                   value={formData.maritalStatus}
                   onChange={handleChange}
                   options={maritalStatusOptions}
                 />
-                <Select 
-                  label="Language" 
+                <Select
+                  label="Language"
                   name="language"
                   value={formData.language}
                   onChange={handleChange}
@@ -296,16 +284,16 @@ export default function CreateLeadPage() {
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <Input 
-                  label="Country" 
-                  name="country" 
+                <Input
+                  label="Country"
+                  name="country"
                   value={formData.country}
                   onChange={handleChange}
                   placeholder="Iraq"
                   icon={<Globe className="w-4 h-4" />}
                 />
-                <Select 
-                  label="Type of Patient" 
+                <Select
+                  label="Type of Patient"
                   name="patientType"
                   value={formData.patientType}
                   onChange={handleChange}
@@ -314,16 +302,16 @@ export default function CreateLeadPage() {
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <Select 
-                  label="City" 
+                <Select
+                  label="City"
                   name="city"
                   value={formData.city}
                   onChange={handleChange}
                   options={cityOptions}
                 />
                 <div className="space-y-2">
-                  <Select 
-                    label="Address" 
+                  <Select
+                    label="Address"
                     name="address"
                     value={formData.address}
                     onChange={handleChange}
@@ -384,28 +372,30 @@ export default function CreateLeadPage() {
         <Card>
           <CardHeader className="border-b border-gray-100">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-lg bg-green-100 flex items-center justify-center">
-                <DollarSign className="w-5 h-5 text-green-600" />
+              <div className="w-10 h-10 rounded-lg bg-blue-100 flex items-center justify-center">
+                <LayoutDashboard className="w-5 h-5 text-blue-600" />
               </div>
               <div>
-                <h2 className="text-lg font-semibold text-gray-900">Budget & Referral</h2>
-                <p className="text-sm text-gray-500">Financial information and referral source</p>
+                <h2 className="text-lg font-semibold text-gray-900">Financial, Referral & Engagement</h2>
+                <p className="text-sm text-gray-500">Budget, referral source, and decision details</p>
               </div>
             </div>
           </CardHeader>
-          <CardContent className="p-6">
-            <div className="space-y-6">
-              <div className="bg-gray-50 rounded-xl p-6 border border-gray-200">
+          <CardContent className="p-6 space-y-8">
+            {/* Section 1: Budget & Referral */}
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              {/* Left Side: Budget (Takes 2 columns) */}
+              <div className="lg:col-span-2 bg-gray-50 rounded-xl p-4 border border-gray-200">
                 <label className="block text-sm font-semibold text-gray-900 mb-4">
                   Budget Range (IQD)
                 </label>
-                
-                <div className="space-y-6">
+
+                <div className="space-y-4">
                   <div className="grid grid-cols-2 gap-4">
                     <div>
-                      <label className="block text-xs font-medium text-gray-600 mb-2">Minimum</label>
+                      <label className="block text-xs font-medium text-gray-600 mb-1">Minimum</label>
                       <div className="relative">
-                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-gray-500">IQD</span>
+                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-xs text-gray-500">IQD</span>
                         <Input
                           type="number"
                           value={formData.budgetMin}
@@ -413,7 +403,7 @@ export default function CreateLeadPage() {
                             const val = Math.max(BUDGET_MIN, Math.min(Number(e.target.value), formData.budgetMax - 100000));
                             setFormData(prev => ({ ...prev, budgetMin: val }));
                           }}
-                          className="pl-12"
+                          className="pl-10 py-1.5 text-sm h-9"
                           min={BUDGET_MIN}
                           max={formData.budgetMax - 100000}
                           step={100000}
@@ -421,9 +411,9 @@ export default function CreateLeadPage() {
                       </div>
                     </div>
                     <div>
-                      <label className="block text-xs font-medium text-gray-600 mb-2">Maximum</label>
+                      <label className="block text-xs font-medium text-gray-600 mb-1">Maximum</label>
                       <div className="relative">
-                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-gray-500">IQD</span>
+                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-xs text-gray-500">IQD</span>
                         <Input
                           type="number"
                           value={formData.budgetMax}
@@ -431,7 +421,7 @@ export default function CreateLeadPage() {
                             const val = Math.min(BUDGET_MAX, Math.max(Number(e.target.value), formData.budgetMin + 100000));
                             setFormData(prev => ({ ...prev, budgetMax: val }));
                           }}
-                          className="pl-12"
+                          className="pl-10 py-1.5 text-sm h-9"
                           min={formData.budgetMin + 100000}
                           max={BUDGET_MAX}
                           step={100000}
@@ -440,7 +430,7 @@ export default function CreateLeadPage() {
                     </div>
                   </div>
 
-                  <div className="space-y-3">
+                  <div className="px-2">
                     <Slider
                       getAriaLabel={() => 'Budget range'}
                       value={[formData.budgetMin, formData.budgetMax]}
@@ -466,13 +456,14 @@ export default function CreateLeadPage() {
                       max={BUDGET_MAX}
                       step={100000}
                       disableSwap
+                      size="small"
                       sx={{
                         color: '#6b7280',
                         '& .MuiSlider-thumb': {
                           backgroundColor: '#374151',
                           border: '2px solid white',
-                          width: 20,
-                          height: 20,
+                          width: 16,
+                          height: 16,
                           '&:hover': {
                             boxShadow: '0 0 0 8px rgba(55, 65, 81, 0.16)',
                           },
@@ -485,7 +476,7 @@ export default function CreateLeadPage() {
                         },
                       }}
                     />
-                    <div className="flex justify-between text-xs text-gray-500">
+                    <div className="flex justify-between text-[10px] text-gray-500 mt-1">
                       <span>{BUDGET_MIN.toLocaleString()} IQD</span>
                       <span className="font-medium text-gray-700">
                         {formData.budgetMin.toLocaleString()} - {formData.budgetMax.toLocaleString()} IQD
@@ -496,376 +487,281 @@ export default function CreateLeadPage() {
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <Select 
-                  label="Referral Source" 
+              {/* Right Side: Referral & Doctors */}
+              <div className="space-y-4">
+                <Select
+                  label="Referral Source"
                   name="referralSource"
                   value={formData.referralSource}
                   onChange={handleChange}
                   options={referralOptions}
                 />
-              </div>
 
-              {isPersonReferral && (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4 border-t border-gray-100">
-                  <Input 
-                    label="Referral Person Name" 
-                    name="referralPersonName" 
-                    value={formData.referralPersonName}
-                    onChange={handleChange}
-                    placeholder="Enter referral person name"
-                  />
-                  <Input 
-                    label="Referral Person Phone" 
-                    name="referralPersonPhone" 
-                    type="tel"
-                    value={formData.referralPersonPhone}
-                    onChange={handleChange}
-                    placeholder="+964 750 000 0000"
-                    icon={<Phone className="w-4 h-4" />}
-                  />
-                </div>
-              )}
-
-              <Input 
-                label="Previous Doctors (if any)" 
-                name="previousDoctors" 
-                value={formData.previousDoctors}
-                onChange={handleChange}
-                placeholder="Dr. Smith, Dr. Jones, etc."
-              />
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="border-b border-gray-100">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-lg bg-gray-100 flex items-center justify-center">
-                <Users className="w-5 h-5 text-gray-600" />
-              </div>
-              <div>
-                <h2 className="text-lg font-semibold text-gray-900">Decision & Engagement</h2>
-                <p className="text-sm text-gray-500">Influencers, pain points, and engagement level</p>
-              </div>
-            </div>
-          </CardHeader>
-          <CardContent className="p-6">
-            <div className="space-y-8">
-              <div className="bg-gray-50 rounded-xl p-6 border border-gray-200">
-                <h3 className="text-base font-semibold text-gray-900 mb-4 flex items-center gap-2">
-                  <Users className="w-5 h-5 text-gray-600" />
-                  Decision Influencers
-                </h3>
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                  {DECISION_INFLUENCERS.map(influencer => (
-                    <button
-                      key={influencer}
-                      type="button"
-                      onClick={() => handleCheckboxChange("decisionInfluencers", influencer)}
-                      className={`flex items-center gap-2 px-4 py-3 rounded-lg border transition-all duration-200 ${
-                        formData.decisionInfluencers.includes(influencer)
-                          ? "border-gray-400 bg-gray-100 shadow-sm"
-                          : "border-gray-200 bg-white hover:border-gray-300 hover:bg-gray-50"
-                      }`}
-                    >
-                      <div className={`w-5 h-5 rounded border-2 flex items-center justify-center transition-all ${
-                        formData.decisionInfluencers.includes(influencer)
-                          ? "border-gray-700 bg-gray-700"
-                          : "border-gray-300 bg-white"
-                      }`}>
-                        {formData.decisionInfluencers.includes(influencer) && (
-                          <CheckCircle2 className="w-4 h-4 text-white" />
-                        )}
-                      </div>
-                      <span className="text-sm font-medium text-gray-700">{influencer}</span>
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              <div className="bg-gray-50 rounded-xl p-6 border border-gray-200">
-                <h3 className="text-base font-semibold text-gray-900 mb-4 flex items-center gap-2">
-                  <AlertCircle className="w-5 h-5 text-gray-600" />
-                  Pain Points
-                </h3>
-                <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-                  {PAIN_POINTS.map(painPoint => (
-                    <button
-                      key={painPoint}
-                      type="button"
-                      onClick={() => handleCheckboxChange("painPoints", painPoint)}
-                      className={`flex items-center gap-2 px-4 py-3 rounded-lg border transition-all duration-200 ${
-                        formData.painPoints.includes(painPoint)
-                          ? "border-gray-400 bg-gray-100 shadow-sm"
-                          : "border-gray-200 bg-white hover:border-gray-300 hover:bg-gray-50"
-                      }`}
-                    >
-                      <div className={`w-5 h-5 rounded border-2 flex items-center justify-center transition-all ${
-                        formData.painPoints.includes(painPoint)
-                          ? "border-gray-700 bg-gray-700"
-                          : "border-gray-300 bg-white"
-                      }`}>
-                        {formData.painPoints.includes(painPoint) && (
-                          <CheckCircle2 className="w-4 h-4 text-white" />
-                        )}
-                      </div>
-                      <span className="text-sm font-medium text-gray-700">{painPoint}</span>
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <div className="bg-gray-50 rounded-xl p-6 border border-gray-200 flex flex-col items-center justify-center">
-                  <h3 className="text-base font-semibold text-gray-900 mb-4 flex items-center gap-2">
-                    <Star className="w-5 h-5 text-gray-600" />
-                    Knowledge Rating
-                  </h3>
-                  <div className="flex items-center gap-2 justify-center py-4">
-                    {[1, 2, 3, 4, 5].map((star) => (
-                      <button
-                        key={star}
-                        type="button"
-                        onClick={() => handleStarClick(star)}
-                        className="transition-transform duration-200 hover:scale-110 active:scale-95"
-                      >
-                        <Star
-                          className={`w-10 h-10 ${
-                            star <= formData.knowledgeRating
-                              ? "fill-yellow-400 text-yellow-400"
-                              : "fill-gray-200 text-gray-300"
-                          } transition-all duration-200`}
-                        />
-                      </button>
-                    ))}
-                  </div>
-                  <p className="text-center text-sm text-gray-600 mt-3">
-                    {formData.knowledgeRating === 0
-                      ? "No rating selected"
-                      : `${formData.knowledgeRating} out of 5 stars`}
-                  </p>
-                </div>
-
-                <div className="bg-gray-50 rounded-xl p-6 border border-gray-200">
-                  <h3 className="text-base font-semibold text-gray-900 mb-4 flex items-center gap-2">
-                    <Target className="w-5 h-5 text-gray-600" />
-                    Commit Level
-                  </h3>
-                  <div className="grid grid-cols-2 gap-4">
-                    {COMMIT_LEVELS.map((level) => {
-                      const isSelected = formData.commitLevel === level.value;
-                      const percentage = ((level.min + level.max) / 2).toFixed(0);
-                      const circumference = 2 * Math.PI * 18;
-                      const offset = circumference - ((level.max / 100) * circumference);
-
-                      return (
-                        <button
-                          key={level.value}
-                          type="button"
-                          onClick={() => handleCommitLevelClick(level.value as 'Low' | 'Medium' | 'High' | 'Very High')}
-                          className={`relative p-4 rounded-lg border-2 transition-all duration-200 ${
-                            isSelected
-                              ? "border-gray-700 bg-white shadow-md scale-105"
-                              : "border-gray-200 bg-white hover:border-gray-400 hover:shadow-sm"
-                          }`}
-                        >
-                          <div className="flex flex-col items-center gap-2">
-                            <div className="relative w-12 h-12">
-                              <svg className="transform -rotate-90 w-12 h-12">
-                                <circle
-                                  cx="24"
-                                  cy="24"
-                                  r="18"
-                                  stroke="currentColor"
-                                  strokeWidth="4"
-                                  fill="none"
-                                  className="text-gray-200"
-                                />
-                                <circle
-                                  cx="24"
-                                  cy="24"
-                                  r="18"
-                                  stroke="currentColor"
-                                  strokeWidth="4"
-                                  fill="none"
-                                  className={isSelected ? level.color : "text-gray-400"}
-                                  strokeDasharray={circumference}
-                                  strokeDashoffset={offset}
-                                  strokeLinecap="round"
-                                />
-                              </svg>
-                              <div className="absolute inset-0 flex items-center justify-center">
-                                <span className={`text-xs font-bold ${isSelected ? "text-gray-900" : "text-gray-600"}`}>
-                                  {percentage}%
-                                </span>
-                              </div>
-                            </div>
-                            <span className={`text-xs font-semibold ${
-                              isSelected ? "text-gray-900" : "text-gray-600"
-                            }`}>
-                              {level.label}
-                            </span>
-                            <span className="text-xs text-gray-500">
-                              {level.min}-{level.max}%
-                            </span>
-                          </div>
-                        </button>
-                      );
-                    })}
-                  </div>
-                </div>
-              </div>
-
-              <div className="space-y-4">
-                <button
-                  type="button"
-                  onClick={() => handleBooleanChange("sharedEducationalMaterials", !formData.sharedEducationalMaterials)}
-                  className="w-full bg-gray-50 rounded-xl p-6 border border-gray-200 hover:bg-gray-100 transition-all duration-200 text-left"
-                >
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                      <div className={`w-6 h-6 rounded border-2 flex items-center justify-center transition-all ${
-                        formData.sharedEducationalMaterials
-                          ? "border-gray-700 bg-gray-700"
-                          : "border-gray-300 bg-white"
-                      }`}>
-                        {formData.sharedEducationalMaterials && (
-                          <CheckCircle2 className="w-4 h-4 text-white" />
-                        )}
-                      </div>
-                      <span className="text-sm font-semibold text-gray-900">
-                        Shared Educational Materials
-                      </span>
-                    </div>
-                    <div className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
-                      formData.sharedEducationalMaterials
-                        ? "bg-gray-200 text-gray-800"
-                        : "bg-gray-100 text-gray-600"
-                    }`}>
-                      {formData.sharedEducationalMaterials ? "Yes" : "No"}
-                    </div>
-                  </div>
-                </button>
-
-                {formData.sharedEducationalMaterials && (
-                  <div className="space-y-4 pl-2 border-l-2 border-gray-200">
-                    <div>
-                      <label className="block text-sm font-semibold text-gray-900 mb-2">
-                        Upload Files (Optional)
-                      </label>
-                      <div className="relative">
-                        <input
-                          type="file"
-                          multiple
-                          onChange={handleFileUpload}
-                          className="hidden"
-                          id="educational-materials-upload"
-                        />
-                        <label
-                          htmlFor="educational-materials-upload"
-                          className="flex items-center gap-2 px-4 py-3 bg-white border border-gray-300 rounded-lg cursor-pointer hover:bg-gray-50 transition-colors"
-                        >
-                          <Upload className="w-4 h-4 text-gray-600" />
-                          <span className="text-sm text-gray-700">Choose files to upload</span>
-                        </label>
-                      </div>
-                      {formData.sharedEducationalMaterialsFiles && formData.sharedEducationalMaterialsFiles.length > 0 && (
-                        <div className="mt-3 space-y-2">
-                          {formData.sharedEducationalMaterialsFiles.map((file) => (
-                            <div
-                              key={file.id}
-                              className="flex items-center justify-between p-3 bg-gray-50 rounded-lg border border-gray-200"
-                            >
-                              <div className="flex items-center gap-2">
-                                <FileText className="w-4 h-4 text-gray-600" />
-                                <div>
-                                  <p className="text-sm font-medium text-gray-900">{file.name}</p>
-                                  <p className="text-xs text-gray-500">{file.size}</p>
-                                </div>
-                              </div>
-                              <button
-                                type="button"
-                                onClick={() => handleRemoveFile(file.id)}
-                                className="p-1 hover:bg-gray-200 rounded transition-colors"
-                              >
-                                <X className="w-4 h-4 text-gray-600" />
-                              </button>
-                            </div>
-                          ))}
-                        </div>
-                      )}
-                    </div>
-
-                    <div>
-                      <label className="block text-sm font-semibold text-gray-900 mb-2">
-                        Notes (Optional)
-                      </label>
-                      <Textarea
-                        name="sharedEducationalMaterialsNotes"
-                        value={formData.sharedEducationalMaterialsNotes || ""}
-                        onChange={handleChange}
-                        placeholder="Add any notes about the shared educational materials..."
-                        rows={4}
-                        className="w-full"
-                      />
-                    </div>
-                  </div>
-                )}
-              </div>
-
-              <div className="space-y-4">
-                <button
-                  type="button"
-                  onClick={() => handleBooleanChange("hasCompetitorsConsidered", !formData.hasCompetitorsConsidered)}
-                  className="w-full bg-gray-50 rounded-xl p-6 border border-gray-200 hover:bg-gray-100 transition-all duration-200 text-left"
-                >
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                      <div className={`w-6 h-6 rounded border-2 flex items-center justify-center transition-all ${
-                        formData.hasCompetitorsConsidered
-                          ? "border-gray-700 bg-gray-700"
-                          : "border-gray-300 bg-white"
-                      }`}>
-                        {formData.hasCompetitorsConsidered && (
-                          <CheckCircle2 className="w-4 h-4 text-white" />
-                        )}
-                      </div>
-                      <span className="text-sm font-semibold text-gray-900">
-                        Competitors Considered
-                      </span>
-                    </div>
-                    <div className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
-                      formData.hasCompetitorsConsidered
-                        ? "bg-gray-200 text-gray-800"
-                        : "bg-gray-100 text-gray-600"
-                    }`}>
-                      {formData.hasCompetitorsConsidered ? "Yes" : "No"}
-                    </div>
-                  </div>
-                </button>
-
-                {formData.hasCompetitorsConsidered && (
-                  <div className="pl-2 border-l-2 border-gray-200">
-                    <label className="block text-sm font-semibold text-gray-900 mb-2">
-                      List Competitors (Optional)
-                    </label>
-                    <Textarea
-                      name="competitorsConsidered"
-                      value={formData.competitorsConsidered.join(", ")}
-                      onChange={(e) => {
-                        const value = e.target.value;
-                        setFormData(prev => ({
-                          ...prev,
-                          competitorsConsidered: value ? value.split(",").map(s => s.trim()).filter(s => s) : []
-                        }));
-                      }}
-                      placeholder="Enter competitors separated by commas (e.g., Competitor A, Competitor B)"
-                      rows={3}
-                      className="w-full border-gray-200 focus:border-blue-500 focus:ring-blue-500/20"
+                {isPersonReferral && (
+                  <div className="space-y-4 p-3 bg-gray-50 rounded-lg border border-gray-100">
+                    <Input
+                      label="Referral Person Name"
+                      name="referralPersonName"
+                      value={formData.referralPersonName}
+                      onChange={handleChange}
+                      placeholder="Enter name"
+                      className="h-9 text-sm"
+                    />
+                    <Input
+                      label="Referral Person Phone"
+                      name="referralPersonPhone"
+                      type="tel"
+                      value={formData.referralPersonPhone}
+                      onChange={handleChange}
+                      placeholder="+964..."
+                      icon={<Phone className="w-3 h-3" />}
+                      className="h-9 text-sm"
                     />
                   </div>
                 )}
+
+                <Input
+                  label="Previous Doctors"
+                  name="previousDoctors"
+                  value={formData.previousDoctors}
+                  onChange={handleChange}
+                  placeholder="Dr. Name..."
+                />
+              </div>
+            </div>
+
+            <div className="border-t border-gray-100 pt-8 mt-8">
+              <div className="space-y-6">
+                {/* Decision Influencers & Pain Points - Side by Side */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="bg-gray-50 rounded-xl p-4 border border-gray-200">
+                    <h3 className="text-sm font-semibold text-gray-900 mb-3 flex items-center gap-2">
+                      <Users className="w-4 h-4 text-gray-600" />
+                      Decision Influencers
+                    </h3>
+                    <div className="flex flex-wrap gap-2">
+                      {DECISION_INFLUENCERS.map(influencer => (
+                        <button
+                          key={influencer}
+                          type="button"
+                          onClick={() => handleCheckboxChange("decisionInfluencers", influencer)}
+                          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-xs transition-all duration-200 ${formData.decisionInfluencers.includes(influencer)
+                            ? "border-gray-500 bg-white shadow-sm ring-1 ring-gray-200"
+                            : "border-gray-200 bg-white hover:border-gray-300"
+                            }`}
+                        >
+                          <div className={`w-3.5 h-3.5 rounded border flex items-center justify-center transition-all ${formData.decisionInfluencers.includes(influencer)
+                            ? "border-gray-800 bg-gray-800"
+                            : "border-gray-300 bg-white"
+                            }`}>
+                            {formData.decisionInfluencers.includes(influencer) && (
+                              <CheckCircle2 className="w-2.5 h-2.5 text-white" />
+                            )}
+                          </div>
+                          <span className="font-medium text-gray-700">{influencer}</span>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="bg-gray-50 rounded-xl p-4 border border-gray-200">
+                    <h3 className="text-sm font-semibold text-gray-900 mb-3 flex items-center gap-2">
+                      <AlertCircle className="w-4 h-4 text-gray-600" />
+                      Pain Points
+                    </h3>
+                    <div className="flex flex-wrap gap-2">
+                      {PAIN_POINTS.map(painPoint => (
+                        <button
+                          key={painPoint}
+                          type="button"
+                          onClick={() => handleCheckboxChange("painPoints", painPoint)}
+                          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-xs transition-all duration-200 ${formData.painPoints.includes(painPoint)
+                            ? "border-gray-500 bg-white shadow-sm ring-1 ring-gray-200"
+                            : "border-gray-200 bg-white hover:border-gray-300"
+                            }`}
+                        >
+                          <div className={`w-3.5 h-3.5 rounded border flex items-center justify-center transition-all ${formData.painPoints.includes(painPoint)
+                            ? "border-gray-800 bg-gray-800"
+                            : "border-gray-300 bg-white"
+                            }`}>
+                            {formData.painPoints.includes(painPoint) && (
+                              <CheckCircle2 className="w-2.5 h-2.5 text-white" />
+                            )}
+                          </div>
+                          <span className="font-medium text-gray-700">{painPoint}</span>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Knowledge & Commit Level - Side by Side */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="bg-gray-50 rounded-xl p-4 border border-gray-200">
+                    <h3 className="text-sm font-semibold text-gray-900 mb-3 flex items-center gap-2">
+                      <Star className="w-4 h-4 text-gray-600" />
+                      Knowledge Rating
+                    </h3>
+                    <div className="flex items-center justify-center py-2 relative">
+                      <div className="flex items-center gap-2">
+                        {[1, 2, 3, 4, 5].map((star) => (
+                          <button
+                            key={star}
+                            type="button"
+                            onClick={() => handleStarClick(star)}
+                            className="transition-transform duration-200 hover:scale-110 active:scale-95 p-1 group"
+                          >
+                            <Star
+                              className={`w-8 h-8 ${star <= formData.knowledgeRating
+                                ? "fill-yellow-400 text-yellow-400"
+                                : "fill-gray-100 text-gray-300 group-hover:text-yellow-200"
+                                } transition-all duration-200`}
+                            />
+                          </button>
+                        ))}
+                      </div>
+                      <div className="absolute right-0 top-1/2 -translate-y-1/2 text-sm font-bold text-gray-900 bg-white px-2 py-1 rounded-lg border border-gray-100 shadow-sm">
+                        {formData.knowledgeRating}/5
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="bg-gray-50 rounded-xl p-4 border border-gray-200">
+                    <div className="flex items-center justify-between mb-4">
+                      <h3 className="text-sm font-semibold text-gray-900 flex items-center gap-2">
+                        <Target className="w-4 h-4 text-gray-600" />
+                        Commit Level
+                      </h3>
+                      <div className="flex items-center gap-2">
+                        <span className="text-sm font-bold text-gray-900">{formData.commitLevel}%</span>
+                        <span className={`text-xs font-bold px-2 py-1 rounded-full ${formData.commitLevel >= 80 ? "bg-green-100 text-green-700" :
+                          formData.commitLevel >= 55 ? "bg-blue-100 text-blue-700" :
+                            formData.commitLevel >= 30 ? "bg-yellow-100 text-yellow-700" :
+                              "bg-red-100 text-red-700"
+                          }`}>
+                          {formData.commitLevel >= 80 ? "Very High" :
+                            formData.commitLevel >= 55 ? "High" :
+                              formData.commitLevel >= 30 ? "Medium" : "Low"}
+                        </span>
+                      </div>
+                    </div>
+                    <div className="px-2">
+                      <Slider
+                        value={formData.commitLevel}
+                        onChange={(e, value) => {
+                          setFormData(prev => ({ ...prev, commitLevel: value as number }));
+                        }}
+                        valueLabelDisplay="auto"
+                        min={0}
+                        max={100}
+                        size="small"
+                        sx={{
+                          color: formData.commitLevel >= 80 ? '#15803d' :
+                            formData.commitLevel >= 55 ? '#1d4ed8' :
+                              formData.commitLevel >= 30 ? '#a16207' : '#b91c1c',
+                          height: 6,
+                          '& .MuiSlider-thumb': {
+                            width: 16,
+                            height: 16,
+                            transition: '0.3s cubic-bezier(.47,1.64,.41,.8)',
+                            '&:before': { boxShadow: '0 2px 12px 0 rgba(0,0,0,0.4)' },
+                            '&:hover, &.Mui-focusVisible': {
+                              boxShadow: '0px 0px 0px 8px rgb(0 0 0 / 16%)',
+                            },
+                            '&.Mui-active': { width: 18, height: 18 },
+                          },
+                          '& .MuiSlider-rail': { opacity: 0.28 },
+                        }}
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Toggles Section */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {/* Educational Materials Toggle */}
+                  <div className={`rounded-xl border transition-all duration-200 ${formData.sharedEducationalMaterials ? "bg-blue-50/50 border-blue-200" : "bg-white border-gray-200"
+                    }`}>
+                    <button
+                      type="button"
+                      onClick={() => handleBooleanChange("sharedEducationalMaterials", !formData.sharedEducationalMaterials)}
+                      className="w-full flex items-center justify-between p-4"
+                    >
+                      <div className="flex items-center gap-3">
+                        <div className={`w-5 h-5 rounded border flex items-center justify-center transition-all ${formData.sharedEducationalMaterials ? "border-blue-600 bg-blue-600" : "border-gray-300"
+                          }`}>
+                          {formData.sharedEducationalMaterials && <CheckCircle2 className="w-3.5 h-3.5 text-white" />}
+                        </div>
+                        <span className="text-sm font-medium text-gray-900">Shared Materials</span>
+                      </div>
+                    </button>
+
+                    {formData.sharedEducationalMaterials && (
+                      <div className="px-4 pb-4 pt-0 space-y-3">
+                        <label className="flex items-center gap-2 p-2 bg-white border border-blue-100 rounded-lg cursor-pointer hover:bg-gray-50 transition-colors">
+                          <Upload className="w-3.5 h-3.5 text-blue-600" />
+                          <span className="text-xs text-gray-700">Upload Files</span>
+                          <input type="file" multiple onChange={handleFileUpload} className="hidden" />
+                        </label>
+
+                        {formData.sharedEducationalMaterialsFiles?.map((file) => (
+                          <div key={file.id} className="flex items-center justify-between p-2 bg-white rounded border border-gray-100">
+                            <span className="text-xs truncate max-w-[150px]">{file.name}</span>
+                            <button onClick={() => handleRemoveFile(file.id)} className="text-gray-400 hover:text-red-500">
+                              <X className="w-3 h-3" />
+                            </button>
+                          </div>
+                        ))}
+
+                        <Textarea
+                          name="sharedEducationalMaterialsNotes"
+                          value={formData.sharedEducationalMaterialsNotes || ""}
+                          onChange={handleChange}
+                          placeholder="Add notes..."
+                          rows={2}
+                          className="text-xs bg-white min-h-[60px]"
+                        />
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Competitors Toggle */}
+                  <div className={`rounded-xl border transition-all duration-200 ${formData.hasCompetitorsConsidered ? "bg-blue-50/50 border-blue-200" : "bg-white border-gray-200"
+                    }`}>
+                    <button
+                      type="button"
+                      onClick={() => handleBooleanChange("hasCompetitorsConsidered", !formData.hasCompetitorsConsidered)}
+                      className="w-full flex items-center justify-between p-4"
+                    >
+                      <div className="flex items-center gap-3">
+                        <div className={`w-5 h-5 rounded border flex items-center justify-center transition-all ${formData.hasCompetitorsConsidered ? "border-blue-600 bg-blue-600" : "border-gray-300"
+                          }`}>
+                          {formData.hasCompetitorsConsidered && <CheckCircle2 className="w-3.5 h-3.5 text-white" />}
+                        </div>
+                        <span className="text-sm font-medium text-gray-900">Competitors Considered</span>
+                      </div>
+                    </button>
+
+                    {formData.hasCompetitorsConsidered && (
+                      <div className="px-4 pb-4 pt-0">
+                        <Textarea
+                          name="competitorsConsidered"
+                          value={formData.competitorsConsidered.join(", ")}
+                          onChange={(e) => {
+                            const value = e.target.value;
+                            setFormData(prev => ({
+                              ...prev,
+                              competitorsConsidered: value ? value.split(",").map(s => s.trim()).filter(s => s) : []
+                            }));
+                          }}
+                          placeholder="e.g. Hospital A, Clinic B"
+                          rows={2}
+                          className="text-xs bg-white min-h-[60px]"
+                        />
+                      </div>
+                    )}
+                  </div>
+                </div>
               </div>
             </div>
           </CardContent>
