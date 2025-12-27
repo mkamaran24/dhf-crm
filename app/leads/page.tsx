@@ -48,6 +48,7 @@ function LeadsPageContent() {
           searchQuery={leadsHook.searchQuery}
           onSearchChange={leadsHook.setSearchQuery}
           onStatusChange={leadsHook.setStatusFilter}
+          onDateRangeChange={leadsHook.setDateRangeFilter}
           onClearFilters={leadsHook.clearFilters}
         />
 
@@ -57,6 +58,7 @@ function LeadsPageContent() {
           hasActiveFilters={hasActiveLeadsFilters}
           onStatusChange={leadsHook.updateLeadStatus}
           onDelete={handleDeleteLeadClick}
+          currentStatusFilter={leadsHook.filters.status}
         />
 
         {!leadsHook.isLoading && leadsHook.leads.length > 0 && (

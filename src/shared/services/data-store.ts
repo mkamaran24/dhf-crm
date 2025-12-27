@@ -1,4 +1,5 @@
 import { Lead } from '@/src/features/leads/types';
+import { LeadStatus } from '@/src/shared/types';
 import { Patient } from '@/src/features/patients/types';
 import { Appointment } from '@/src/features/appointments/types';
 import { Task } from '@/src/features/tasks/types';
@@ -38,12 +39,42 @@ const generateMockLeads = (): Lead[] => {
     const firstName = firstNames[Math.floor(Math.random() * firstNames.length)];
     const lastName = lastNames[Math.floor(Math.random() * lastNames.length)];
 
+    const statuses: LeadStatus[] = ["New", "Contacted", "Follow-up", "Ready", "Appointment Booked", "Converted"];
+    const status = statuses[Math.floor(Math.random() * statuses.length)];
+
+    // Set followUpDate for specific statuses
+    let followUpDate: string | undefined = undefined;
+    if (["Follow-up", "Ready", "Appointment Booked"].includes(status)) {
+      const futureDate = new Date();
+      futureDate.setDate(futureDate.getDate() + Math.floor(Math.random() * 14));
+      followUpDate = futureDate.toISOString().split('T')[0];
+    }
+
+    // Distribute createdAt dates for testing filters:
+    // 1-5: Today
+    // 6-15: This week
+    // 16-30: This month
+    // 31-50: Older
+    let createdAtDate: Date;
+    if (i <= 5) {
+      createdAtDate = new Date(); // Today
+    } else if (i <= 15) {
+      createdAtDate = new Date();
+      createdAtDate.setDate(createdAtDate.getDate() - Math.floor(Math.random() * 6)); // This week
+    } else if (i <= 30) {
+      createdAtDate = new Date();
+      createdAtDate.setDate(createdAtDate.getDate() - Math.floor(Math.random() * 25)); // This month
+    } else {
+      createdAtDate = new Date(Date.now() - (31 + Math.random() * 60) * 24 * 60 * 60 * 1000); // Older
+    }
+
     leads.push({
       id: i.toString(),
       name: `${firstName} ${lastName}`,
       phone: `+964 750 ${String(i).padStart(7, '0')}`,
       phoneSecondary: Math.random() > 0.7 ? `+964 770 ${String(i).padStart(7, '0')}` : undefined,
-      status: "Contacted",
+      status,
+      followUpDate,
       dob: new Date(1950 + Math.floor(Math.random() * 50), Math.floor(Math.random() * 12), Math.floor(Math.random() * 28) + 1).toISOString().split('T')[0],
       gender: genders[Math.floor(Math.random() * genders.length)],
       maritalStatus: maritalStatuses[Math.floor(Math.random() * maritalStatuses.length)],
@@ -67,7 +98,7 @@ const generateMockLeads = (): Lead[] => {
       painPoints: randomPainPoints.length > 0 ? randomPainPoints : [],
       knowledgeRating: Math.floor(Math.random() * 5) + 1,
       commitLevel: commitLevels[Math.floor(Math.random() * commitLevels.length)],
-      createdAt: new Date(Date.now() - Math.random() * 90 * 24 * 60 * 60 * 1000).toISOString(),
+      createdAt: createdAtDate.toISOString(),
     });
   }
   return leads;
@@ -166,21 +197,28 @@ export const deletePatient = (id: string) => {
 
 export const getPatient = (id: string) => patients.find(p => p.id === id);
 
+const getRelativeDate = (days: number, hours: number = 10): string => {
+  const d = new Date();
+  d.setDate(d.getDate() + days);
+  d.setHours(hours, 0, 0, 0);
+  return d.toISOString().replace('Z', '');
+};
+
 export let appointments: Appointment[] = [
   {
     id: '1',
     patientName: 'John Doe',
     doctor: 'Dr. Smith',
-    date: '2025-12-15T10:00:00',
+    date: getRelativeDate(0, 9), // Today 9:00 AM
     type: 'Check-up',
-    status: 'scheduled',
+    status: 'confirmed',
     notes: 'Routine check-up'
   },
   {
     id: '2',
     patientName: 'Jane Smith',
     doctor: 'Dr. Jones',
-    date: '2025-12-16T14:30:00',
+    date: getRelativeDate(0, 14), // Today 2:00 PM
     type: 'Consultation',
     status: 'scheduled',
     notes: 'New patient consultation'
@@ -188,11 +226,83 @@ export let appointments: Appointment[] = [
   {
     id: '3',
     patientName: 'Alice Johnson',
-    doctor: 'Dr. Smith',
-    date: '2025-12-15T11:30:00',
+    doctor: 'Dr. Emily Brown',
+    date: getRelativeDate(1, 11), // Tomorrow 11:00 AM
     type: 'Follow-up',
     status: 'confirmed',
     notes: 'Follow up on blood work'
+  },
+  {
+    id: '4',
+    patientName: 'Michael Wilson',
+    doctor: 'Dr. Smith',
+    date: getRelativeDate(2, 10), // 2 days from now
+    type: 'Teeth Cleaning',
+    status: 'scheduled',
+    notes: 'Regular scaling'
+  },
+  {
+    id: '5',
+    patientName: 'Sarah Connor',
+    doctor: 'Dr. Emily Brown',
+    date: getRelativeDate(-1, 15), // Yesterday
+    type: 'Emergency',
+    status: 'completed',
+    notes: 'Toothache management'
+  },
+  {
+    id: '6',
+    patientName: 'Robert Brown',
+    doctor: 'Dr. Jones',
+    date: getRelativeDate(3, 9), // 3 days from now
+    type: 'Consultation',
+    status: 'scheduled',
+    notes: 'Initial evaluation'
+  },
+  {
+    id: 'walkin-1',
+    patientName: 'Zanyar Ahmed',
+    doctor: 'Dr. Smith',
+    date: getRelativeDate(0, 11), // Today 11:00 AM
+    type: 'Check-up',
+    status: 'confirmed',
+    notes: 'Walk-in patient'
+  },
+  {
+    id: 'hist-1',
+    patientName: 'Omar Hassan',
+    doctor: 'Dr. Karwan Mustafa',
+    date: getRelativeDate(-20, 10), // Dec 5
+    type: 'Consultation',
+    status: 'completed',
+    notes: 'Initial evaluation'
+  },
+  {
+    id: 'hist-2',
+    patientName: 'Lana Khalid',
+    doctor: 'Dr. Ahmed Yasin',
+    date: getRelativeDate(-13, 14), // Dec 12
+    type: 'Check-up',
+    status: 'completed',
+    notes: 'Teeth cleaning'
+  },
+  {
+    id: 'hist-3',
+    patientName: 'Yousif Salar',
+    doctor: 'Dr. Smith',
+    date: getRelativeDate(-7, 16), // Dec 18
+    type: 'Follow-up',
+    status: 'completed',
+    notes: 'X-ray review'
+  },
+  {
+    id: 'hist-4',
+    patientName: 'Darya Mohammed',
+    doctor: 'Dr. Jones',
+    date: getRelativeDate(-2, 11), // Dec 23
+    type: 'Check-up',
+    status: 'completed',
+    notes: 'Standard check'
   }
 ];
 
@@ -261,4 +371,3 @@ export const currentUser: User = {
   avatar: 'https://ui-avatars.com/api/?name=Emily+Brown&background=0D8ABC&color=fff',
   role: 'Doctor'
 };
-

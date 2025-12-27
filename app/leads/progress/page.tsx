@@ -1,31 +1,25 @@
 
 "use client";
 
-import React, { Suspense } from "react";
-import { LeadProgressList } from "@/src/features/leads/components/progress/LeadProgressList";
+import { Suspense } from "react";
 import { LeadSummaryCards } from "@/src/features/leads/components/progress/LeadSummaryCards";
-
-function LeadProgressContent() {
-    return (
-        <div className="space-y-6">
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-                <div>
-                    <h1 className="text-2xl font-bold text-gray-800">Lead Progress Tracker</h1>
-                    <p className="text-sm text-gray-500 mt-1">Monitor lead journey and stage conversions</p>
-                </div>
-            </div>
-
-            <LeadSummaryCards />
-
-            <LeadProgressList />
-        </div>
-    );
-}
+import { LeadProgressList } from "@/src/features/leads/components/progress/LeadProgressList";
 
 export default function LeadProgressPage() {
     return (
-        <Suspense fallback={<div className="p-8 text-center text-gray-500">Loading...</div>}>
-            <LeadProgressContent />
-        </Suspense>
+        <div className="space-y-8 p-6">
+            <div className="flex flex-col gap-2">
+                <h1 className="text-3xl font-black text-gray-900 tracking-tight">Lead Progress Tracker</h1>
+                <p className="text-gray-500 font-medium">Monitor your sales pipeline and lead conversion journey.</p>
+            </div>
+
+            <Suspense fallback={<div className="h-32 bg-gray-50 animate-pulse rounded-2xl" />}>
+                <LeadSummaryCards />
+            </Suspense>
+
+            <Suspense fallback={<div className="h-64 bg-gray-50 animate-pulse rounded-2xl" />}>
+                <LeadProgressList />
+            </Suspense>
+        </div>
     );
 }

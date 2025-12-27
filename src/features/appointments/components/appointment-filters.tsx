@@ -7,17 +7,12 @@ import { AppointmentStatus } from "@/src/shared/types";
 
 interface AppointmentFiltersProps {
   searchQuery: string;
-  doctorFilter: string;
-  departmentFilter: string;
   statusFilter: AppointmentStatus | "all";
   timeFilter: string;
   onSearchChange: (query: string) => void;
-  onDoctorChange: (doctor: string) => void;
-  onDepartmentChange: (department: string) => void;
   onStatusChange: (status: AppointmentStatus | "all") => void;
   onTimeFilterChange: (time: string) => void;
   onClearFilters: () => void;
-  showDoctorFilter?: boolean;
 }
 
 const STATUS_OPTIONS = [
@@ -28,34 +23,17 @@ const STATUS_OPTIONS = [
   { label: "Cancelled", value: "cancelled" },
 ];
 
-const DOCTOR_OPTIONS = [
-  { label: "All Doctors", value: "all" },
-  ...DOCTORS.map(d => ({ label: d.label, value: d.value })),
-];
-
-const DEPARTMENT_OPTIONS = [
-  { label: "All Departments", value: "all" },
-  ...DEPARTMENTS.map(d => ({ label: d.label, value: d.value })),
-];
-
 export function AppointmentFilters({
   searchQuery,
-  doctorFilter,
-  departmentFilter,
   statusFilter,
   timeFilter,
   onSearchChange,
-  onDoctorChange,
-  onDepartmentChange,
   onStatusChange,
   onTimeFilterChange,
   onClearFilters,
-  showDoctorFilter = true,
 }: AppointmentFiltersProps) {
-  const hasActiveFilters = 
+  const hasActiveFilters =
     searchQuery.trim() !== "" ||
-    (showDoctorFilter && doctorFilter !== "all") || 
-    departmentFilter !== "all" ||
     statusFilter !== "all" ||
     timeFilter !== "all";
 
@@ -66,11 +44,10 @@ export function AppointmentFilters({
           <button
             key={filter.value}
             onClick={() => onTimeFilterChange(filter.value)}
-            className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
-              timeFilter === filter.value
+            className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${timeFilter === filter.value
                 ? "bg-blue-600 text-white shadow-md"
                 : "bg-white text-gray-600 border border-gray-200 hover:border-gray-300 hover:bg-gray-50"
-            }`}
+              }`}
           >
             {filter.label}
           </button>
@@ -89,23 +66,7 @@ export function AppointmentFilters({
           </div>
 
           <div className="flex flex-col md:flex-row gap-4 items-end">
-            <div className={`grid gap-4 flex-1 ${showDoctorFilter ? 'grid-cols-1 sm:grid-cols-3' : 'grid-cols-1 sm:grid-cols-2'}`}>
-              {showDoctorFilter && (
-                <Select
-                  label="Doctor"
-                  value={doctorFilter}
-                  onChange={(e) => onDoctorChange(e.target.value)}
-                  options={DOCTOR_OPTIONS}
-                />
-              )}
-
-              <Select
-                label="Department"
-                value={departmentFilter}
-                onChange={(e) => onDepartmentChange(e.target.value)}
-                options={DEPARTMENT_OPTIONS}
-              />
-
+            <div className="grid gap-4 flex-1 grid-cols-1">
               <Select
                 label="Status"
                 value={statusFilter}

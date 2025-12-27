@@ -10,8 +10,38 @@ export async function GET(request: Request) {
   const limit = parseInt(searchParams.get("limit") || "20");
   const status = searchParams.get("status") as LeadStatus | null;
   const search = searchParams.get("search")?.toLowerCase() || null;
+  const dateRange = searchParams.get("dateRange");
 
   let filteredLeads = [...leads];
+
+  if (dateRange && dateRange !== 'all') {
+    const now = new Date();
+    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+
+    filteredLeads = filteredLeads.filter(lead => {
+      const createdDate = new Date(lead.createdAt);
+
+      if (dateRange === 'today') {
+        return createdDate >= today;
+      }
+
+      if (dateRange === 'week') {
+        const firstDayOfWeek = new Date(today);
+        const day = today.getDay(); // 0 for Sunday
+        const diff = today.getDate() - day + (day === 0 ? -6 : 1); // Adjust to Monday
+        firstDayOfWeek.setDate(diff);
+        firstDayOfWeek.setHours(0, 0, 0, 0);
+        return createdDate >= firstDayOfWeek;
+      }
+
+      if (dateRange === 'month') {
+        const firstDayOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+        return createdDate >= firstDayOfMonth;
+      }
+
+      return true;
+    });
+  }
 
   if (status) {
     filteredLeads = filteredLeads.filter(lead => lead.status === status);

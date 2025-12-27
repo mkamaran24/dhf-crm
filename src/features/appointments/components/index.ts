@@ -7,3 +7,4 @@ export { AppointmentReminderModal } from './appointment-reminder-modal';
 export { QuickActionsModal } from './quick-actions-modal';
 export { BulkActionsBar } from './bulk-actions-bar';
 export { RecurringAppointmentModal } from './recurring-appointment-modal';
+export { WalkInAppointmentModal } from './walk-in-appointment-modal';

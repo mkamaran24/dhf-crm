@@ -64,11 +64,9 @@ export const DEPARTMENTS = DEPARTMENTS_RAW.map(dept => ({
 }));
 
 export const TIME_FILTERS = [
-  { label: "All", value: "all" },
   { label: "Today", value: "today" },
   { label: "This Week", value: "week" },
-  { label: "This Month", value: "month" },
-  { label: "Upcoming", value: "upcoming" }
+  { label: "This Month", value: "month" }
 ] as const;
 
 export const APPOINTMENT_STATUSES = [

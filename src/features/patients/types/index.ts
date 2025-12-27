@@ -3,9 +3,15 @@ import { PatientStatus, Gender } from '@/src/shared/types';
 export interface Visit {
   id: string;
   date: string;
+  time?: string;
   reason: string;
   notes: string;
   doctor: string;
+  forms?: Array<{
+    type: string;
+    completed: boolean;
+    lastUpdate: string;
+  }>;
 }
 
 export interface PatientDocument {

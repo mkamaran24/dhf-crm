@@ -10,12 +10,13 @@ interface LeadsResponse {
 export const leadsService = {
   async getLeads(params: LeadFilters & { page?: number; limit?: number }): Promise<LeadsResponse> {
     const searchParams = new URLSearchParams();
-    
+
     if (params.page) searchParams.append('page', params.page.toString());
     if (params.limit) searchParams.append('limit', params.limit.toString());
     if (params.status) searchParams.append('status', params.status);
     if (params.search) searchParams.append('search', params.search);
-    
+    if (params.dateRange) searchParams.append('dateRange', params.dateRange);
+
     return api.get<LeadsResponse>(`/api/leads?${searchParams}`);
   },
 
@@ -35,8 +36,8 @@ export const leadsService = {
     return api.delete<void>(`/api/leads/${id}`);
   },
 
-  async updateLeadStatus(id: string, status: string): Promise<Lead> {
-    return api.patch<Lead>(`/api/leads/${id}`, { status });
+  async updateLeadStatus(id: string, status: string, followUpDate?: string): Promise<Lead> {
+    return api.patch<Lead>(`/api/leads/${id}`, { status, followUpDate });
   },
 };
 

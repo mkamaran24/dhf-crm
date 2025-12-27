@@ -1,17 +1,18 @@
 "use client";
 
-import { useState, useMemo, useEffect, Suspense } from "react";
+import { useState, useMemo, useEffect, Suspense, useCallback } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
-import { Plus, Loader2, Calendar, List, Repeat, Download, FileText, FileSpreadsheet, User } from "lucide-react";
+import { Plus, Loader2, Calendar, List, Repeat, Download, FileText, FileSpreadsheet, User, UserPlus } from "lucide-react";
 import { Button } from "@/src/shared/components/ui";
-import { 
-  CalendarView, 
-  AppointmentFilters, 
+import {
+  CalendarView,
+  AppointmentFilters,
   AppointmentStats,
   AppointmentListView,
   BulkActionsBar,
-  RecurringAppointmentModal
+  RecurringAppointmentModal,
+  WalkInAppointmentModal
 } from "@/src/features/appointments/components";
 import { useAppointments } from "@/src/features/appointments/hooks/use-appointments";
 import { AppointmentStatus } from "@/src/shared/types";
@@ -28,25 +29,10 @@ function AppointmentsPageContent() {
   const [searchQuery, setSearchQuery] = useState("");
   const [viewMode, setViewMode] = useState<"calendar" | "list">("calendar");
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
-  const [showRecurringModal, setShowRecurringModal] = useState(false);
-  const [showExportMenu, setShowExportMenu] = useState(false);
-  const [viewMyAppointments, setViewMyAppointments] = useState(false);
-  
-  const isDoctor = user?.role === "Doctor";
-  const doctorName = user?.name || "";
-  
-  const [selectedDoctor, setSelectedDoctor] = useState(isDoctor ? doctorName : "all");
-  const [selectedDepartment, setSelectedDepartment] = useState("all");
-  const [statusFilter, setStatusFilter] = useState<AppointmentStatus | "all">("all");
-  const [timeFilter, setTimeFilter] = useState("all");
 
-  useEffect(() => {
-    if (isDoctor && viewMyAppointments) {
-      setSelectedDoctor(doctorName);
-    } else if (!viewMyAppointments) {
-      setSelectedDoctor("all");
-    }
-  }, [viewMyAppointments, isDoctor, doctorName]);
+  const [showWalkInModal, setShowWalkInModal] = useState(false);
+  const [statusFilter, setStatusFilter] = useState<AppointmentStatus | "all">("all");
+  const [timeFilter, setTimeFilter] = useState("today");
 
   const {
     appointments: rawAppointments,
@@ -56,7 +42,7 @@ function AppointmentsPageContent() {
     getAppointmentsForDay,
     refreshAppointments,
   } = useAppointments({
-    doctorFilter: selectedDoctor,
+    doctorFilter: "all",
     statusFilter: statusFilter,
   });
 
@@ -100,37 +86,60 @@ function AppointmentsPageContent() {
       );
     }
 
-    if (timeFilter !== "all") {
-      const now = new Date();
-      const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-      const tomorrow = new Date(today);
-      tomorrow.setDate(tomorrow.getDate() + 1);
-      const weekEnd = new Date(today);
-      weekEnd.setDate(weekEnd.getDate() + 7);
-      const monthEnd = new Date(today);
-      monthEnd.setMonth(monthEnd.getMonth() + 1);
+    const now = new Date();
+    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const weekEnd = new Date(today);
+    weekEnd.setDate(weekEnd.getDate() + 7);
+    const monthEnd = new Date(today);
+    monthEnd.setMonth(monthEnd.getMonth() + 1);
 
-      filtered = filtered.filter(apt => {
-        const aptDate = new Date(apt.date);
-        const aptDay = new Date(aptDate.getFullYear(), aptDate.getMonth(), aptDate.getDate());
+    filtered = filtered.filter(apt => {
+      const aptDate = new Date(apt.date);
+      const aptDay = new Date(aptDate.getFullYear(), aptDate.getMonth(), aptDate.getDate());
 
-        switch (timeFilter) {
-          case "today":
-            return aptDay.getTime() === today.getTime();
-          case "week":
-            return aptDay >= today && aptDay < weekEnd;
-          case "month":
-            return aptDay >= today && aptDay < monthEnd;
-          case "upcoming":
-            return aptDay >= today;
-          default:
-            return true;
+      switch (timeFilter) {
+        case "today":
+          return aptDay.getTime() === today.getTime();
+        case "week": {
+          const startOfWeek = new Date(today);
+          startOfWeek.setDate(today.getDate() - today.getDay());
+          const endOfWeek = new Date(startOfWeek);
+          endOfWeek.setDate(startOfWeek.getDate() + 6);
+          return aptDay >= startOfWeek && aptDay <= endOfWeek;
         }
-      });
-    }
+        case "month": {
+          const firstDayOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+          const lastDayOfMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+          return aptDay >= firstDayOfMonth && aptDay <= lastDayOfMonth;
+        }
+        default:
+          return true;
+      }
+    });
 
     return filtered;
   }, [rawAppointments, searchQuery, timeFilter]);
+
+  // High-performance filtering for the Calendar component grid
+  const getFilteredAppointmentsForDay = useCallback((date: Date) => {
+    return rawAppointments.filter(apt => {
+      // Apply search filter
+      const matchesSearch = !searchQuery.trim() ||
+        apt.patientName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        apt.phone?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        apt.type.toLowerCase().includes(searchQuery.toLowerCase());
+
+      if (!matchesSearch) return false;
+
+      // Match date
+      const aptDate = new Date(apt.date);
+      return (
+        aptDate.getDate() === date.getDate() &&
+        aptDate.getMonth() === date.getMonth() &&
+        aptDate.getFullYear() === date.getFullYear()
+      );
+    });
+  }, [rawAppointments, searchQuery]);
 
   const handleUpdateStatus = async (appointmentId: string, status: AppointmentStatus) => {
     try {
@@ -144,7 +153,7 @@ function AppointmentsPageContent() {
   const handleReschedule = async (appointmentId: string, newDate: string, newTime: string) => {
     try {
       const dateTime = new Date(`${newDate}T${newTime}`);
-      
+
       const conflict = detectAppointmentConflicts(allAppointments, {
         date: dateTime.toISOString(),
         doctor: rawAppointments.find(a => a.id === appointmentId)?.doctor || ""
@@ -208,55 +217,7 @@ function AppointmentsPageContent() {
     }
   };
 
-  const handleBulkExport = () => {
-    const selectedAppointments = appointments.filter(apt => selectedIds.includes(apt.id));
-    exportAppointmentsToPDF(selectedAppointments);
-  };
 
-  const handleCreateRecurring = async (config: RecurringConfig) => {
-    try {
-      const dates = [];
-      let currentDate = new Date(config.startDate);
-
-      for (let i = 0; i < config.occurrences; i++) {
-        const dateTime = new Date(`${currentDate.toISOString().split('T')[0]}T${config.time}`);
-        dates.push(dateTime.toISOString());
-
-        switch (config.frequency) {
-          case "daily":
-            currentDate.setDate(currentDate.getDate() + 1);
-            break;
-          case "weekly":
-            currentDate.setDate(currentDate.getDate() + 7);
-            break;
-          case "biweekly":
-            currentDate.setDate(currentDate.getDate() + 14);
-            break;
-          case "monthly":
-            currentDate.setMonth(currentDate.getMonth() + 1);
-            break;
-        }
-      }
-
-      await Promise.all(
-        dates.map(date =>
-          appointmentsService.createAppointment({
-            date,
-            patientName: config.patientName,
-            doctor: config.doctor,
-            type: config.type,
-            status: "scheduled",
-            phone: ""
-          })
-        )
-      );
-
-      await refreshAppointments();
-      alert(`${config.occurrences} appointments created successfully!`);
-    } catch (error) {
-      console.error("Error creating recurring appointments:", error);
-    }
-  };
 
   if (error) {
     return (
@@ -273,108 +234,42 @@ function AppointmentsPageContent() {
     <div className="space-y-6 pb-24">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <div className="flex items-center gap-3">
-            <h1 className="text-2xl font-bold text-gray-900">Appointments</h1>
-            {isDoctor && viewMyAppointments && (
-              <span className="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-sm font-medium flex items-center gap-2">
-                <User className="w-4 h-4" />
-                My Appointments
-              </span>
-            )}
-          </div>
+          <h1 className="text-2xl font-bold text-gray-900">Appointments</h1>
           <p className="text-sm text-gray-500 mt-1">
-            {isDoctor && viewMyAppointments 
-              ? `Viewing appointments assigned to ${doctorName}`
-              : "Schedule and manage patient visits"
-            }
+            Schedule and manage patient visits
           </p>
         </div>
         <div className="flex items-center gap-3 flex-wrap">
-          {isDoctor && (
-            <Button
-              variant={viewMyAppointments ? "filled" : "outlined"}
-              onClick={() => setViewMyAppointments(!viewMyAppointments)}
-              className={viewMyAppointments ? "bg-blue-600 hover:bg-blue-700" : ""}
-            >
-              <User className="w-4 h-4 mr-2" />
-              {viewMyAppointments ? "View All" : "My Appointments"}
-            </Button>
-          )}
           <div className="flex items-center gap-1 bg-gray-100 rounded-lg p-1">
             <button
               onClick={() => setViewMode("calendar")}
-              className={`px-4 py-2 rounded-md text-sm font-medium transition-all flex items-center gap-2 ${
-                viewMode === "calendar"
-                  ? "bg-white text-gray-900 shadow-sm"
-                  : "text-gray-600 hover:text-gray-900"
-              }`}
+              className={`px-4 py-2 rounded-md text-sm font-medium transition-all flex items-center gap-2 ${viewMode === "calendar"
+                ? "bg-white text-gray-900 shadow-sm"
+                : "text-gray-600 hover:text-gray-900"
+                }`}
             >
               <Calendar className="w-4 h-4" />
               Calendar
             </button>
             <button
               onClick={() => setViewMode("list")}
-              className={`px-4 py-2 rounded-md text-sm font-medium transition-all flex items-center gap-2 ${
-                viewMode === "list"
-                  ? "bg-white text-gray-900 shadow-sm"
-                  : "text-gray-600 hover:text-gray-900"
-              }`}
+              className={`px-4 py-2 rounded-md text-sm font-medium transition-all flex items-center gap-2 ${viewMode === "list"
+                ? "bg-white text-gray-900 shadow-sm"
+                : "text-gray-600 hover:text-gray-900"
+                }`}
             >
               <List className="w-4 h-4" />
               List
             </button>
           </div>
 
-          <div className="relative">
-            <Button
-              variant="outlined"
-              onClick={() => setShowExportMenu(!showExportMenu)}
-            >
-              <Download className="w-4 h-4 mr-2" />
-              Export
-            </Button>
-            {showExportMenu && (
-              <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-xl border border-gray-200 z-50">
-                <button
-                  onClick={() => {
-                    exportAppointmentsToPDF(appointments);
-                    setShowExportMenu(false);
-                  }}
-                  className="w-full px-4 py-3 text-left hover:bg-gray-50 flex items-center gap-3 text-sm font-medium text-gray-700 rounded-t-lg"
-                >
-                  <FileText className="w-4 h-4 text-red-600" />
-                  Export as PDF
-                </button>
-                <button
-                  onClick={() => {
-                    exportAppointmentsToExcel(appointments);
-                    setShowExportMenu(false);
-                  }}
-                  className="w-full px-4 py-3 text-left hover:bg-gray-50 flex items-center gap-3 text-sm font-medium text-gray-700"
-                >
-                  <FileSpreadsheet className="w-4 h-4 text-green-600" />
-                  Export as Excel
-                </button>
-                <button
-                  onClick={() => {
-                    exportAppointmentsToCSV(appointments);
-                    setShowExportMenu(false);
-                  }}
-                  className="w-full px-4 py-3 text-left hover:bg-gray-50 flex items-center gap-3 text-sm font-medium text-gray-700 rounded-b-lg border-t border-gray-100"
-                >
-                  <Download className="w-4 h-4 text-blue-600" />
-                  Export as CSV
-                </button>
-              </div>
-            )}
-          </div>
-
           <Button
             variant="outlined"
-            onClick={() => setShowRecurringModal(true)}
+            onClick={() => setShowWalkInModal(true)}
+            className="border-emerald-200 text-emerald-700 hover:bg-emerald-50 bg-white"
           >
-            <Repeat className="w-4 h-4 mr-2" />
-            Recurring
+            <UserPlus className="w-4 h-4 mr-2" />
+            Walk-in
           </Button>
 
           <Link href="/appointments/create">
@@ -390,25 +285,16 @@ function AppointmentsPageContent() {
 
       <AppointmentFilters
         searchQuery={searchQuery}
-        doctorFilter={selectedDoctor}
-        departmentFilter={selectedDepartment}
         statusFilter={statusFilter}
         timeFilter={timeFilter}
         onSearchChange={setSearchQuery}
-        onDoctorChange={setSelectedDoctor}
-        onDepartmentChange={setSelectedDepartment}
         onStatusChange={setStatusFilter}
         onTimeFilterChange={setTimeFilter}
         onClearFilters={() => {
           setSearchQuery("");
-          if (!viewMyAppointments) {
-            setSelectedDoctor("all");
-          }
-          setSelectedDepartment("all");
           setStatusFilter("all");
-          setTimeFilter("all");
+          setTimeFilter("today");
         }}
-        showDoctorFilter={!viewMyAppointments}
       />
 
       {isLoading ? (
@@ -417,8 +303,9 @@ function AppointmentsPageContent() {
         </div>
       ) : viewMode === "calendar" ? (
         <CalendarView
-          appointments={appointments}
-          getAppointmentsForDay={getAppointmentsForDay}
+          appointments={rawAppointments}
+          viewType={timeFilter as any}
+          getAppointmentsForDay={getFilteredAppointmentsForDay}
         />
       ) : (
         <AppointmentListView
@@ -431,18 +318,12 @@ function AppointmentsPageContent() {
         />
       )}
 
-      <BulkActionsBar
-        selectedCount={selectedIds.length}
-        onClearSelection={() => setSelectedIds([])}
-        onBulkStatusUpdate={handleBulkStatusUpdate}
-        onBulkDelete={handleBulkDelete}
-        onBulkExport={handleBulkExport}
-      />
-
-      <RecurringAppointmentModal
-        isOpen={showRecurringModal}
-        onClose={() => setShowRecurringModal(false)}
-        onCreateRecurring={handleCreateRecurring}
+      <WalkInAppointmentModal
+        isOpen={showWalkInModal}
+        onClose={() => setShowWalkInModal(false)}
+        onSuccess={async () => {
+          await refreshAppointments();
+        }}
       />
     </div>
   );

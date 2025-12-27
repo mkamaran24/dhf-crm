@@ -8,7 +8,6 @@ export function LeadSummaryCards() {
     const lost = mockLeadsProgress.filter(l => l.lost).length;
     const converted = mockLeadsProgress.filter(l => l.currentStage === "Converted").length;
     const active = total - lost - converted;
-    const conversionRate = total > 0 ? Math.round((converted / total) * 100) : 0;
 
     const stats = [
         {
@@ -53,20 +52,20 @@ export function LeadSummaryCards() {
             {stats.map((stat) => (
                 <div
                     key={stat.label}
-                    className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm flex flex-col gap-4 hover:shadow-md transition-all duration-300 group"
+                    className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm flex flex-col gap-4 hover:shadow-md transition-all duration-300 group"
                 >
                     <div className="flex justify-between items-start">
-                        <div className={`p-3 rounded-xl border ${colorMap[stat.color]} transition-transform group-hover:scale-110 duration-300`}>
+                        <div className={`p-3 rounded-xl border ${colorMap[stat.color]} transition-transform group-hover:scale-110 duration-300 shadow-sm`}>
                             <stat.icon className="w-6 h-6" />
                         </div>
                         <div className="text-right">
-                            <div className="text-2xl font-black text-gray-900 tracking-tight">{stat.value}</div>
-                            <div className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">{stat.label}</div>
+                            <div className="text-2xl font-bold text-slate-800 tracking-tight">{stat.value}</div>
+                            <div className="text-[10px] font-semibold text-slate-400 uppercase tracking-widest">{stat.label}</div>
                         </div>
                     </div>
-                    <div className="pt-4 border-t border-gray-50 flex items-center justify-between">
-                        <span className="text-xs text-gray-500 font-medium">{stat.description}</span>
-                        <div className={`w-1.5 h-1.5 rounded-full ${stat.color === 'emerald' ? 'bg-emerald-500 animate-pulse' : 'bg-gray-200'}`} />
+                    <div className="pt-4 border-t border-slate-50 flex items-center justify-between">
+                        <span className="text-xs text-slate-500 font-medium">{stat.description}</span>
+                        <div className={`w-1.5 h-1.5 rounded-full ${stat.color === 'emerald' ? 'bg-emerald-500 animate-pulse' : 'bg-slate-200'}`} />
                     </div>
                 </div>
             ))}

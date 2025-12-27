@@ -6,6 +6,7 @@ export interface Lead {
   phone: string;
   phoneSecondary?: string;
   status: LeadStatus;
+  followUpDate?: string;
   notes?: string;
   dob?: string;
   gender?: string;
@@ -37,6 +38,7 @@ export interface Lead {
 export interface LeadFilters {
   status?: LeadStatus;
   search?: string;
+  dateRange?: 'today' | 'week' | 'month' | 'all';
 }
 
 export interface LeadFormData {
@@ -44,6 +46,7 @@ export interface LeadFormData {
   phone: string;
   phoneSecondary?: string;
   status: LeadStatus;
+  followUpDate?: string;
   notes?: string;
   dob?: string;
   gender?: string;
@@ -70,4 +73,3 @@ export interface LeadFormData {
   knowledgeRating?: number;
   commitLevel?: number;
 }
-

@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { Clock, User, Calendar, Bell, Edit, MoreVertical, ExternalLink, CheckCircle } from "lucide-react";
+import { Clock, User, Calendar, Bell, Edit, MoreVertical, ExternalLink, CheckCircle, Stethoscope } from "lucide-react";
 import { Appointment } from "../types";
 import { Badge } from "@/src/shared/components/ui";
 import { AppointmentReminderModal } from "./appointment-reminder-modal";
@@ -35,10 +35,10 @@ function getStatusColor(status: string) {
 }
 
 function formatTime(dateString: string): string {
-  return new Date(dateString).toLocaleTimeString([], { 
-    hour: '2-digit', 
+  return new Date(dateString).toLocaleTimeString([], {
+    hour: '2-digit',
     minute: '2-digit',
-    hour12: true 
+    hour12: true
   });
 }
 
@@ -50,16 +50,16 @@ function formatDate(dateString: string): string {
 
   if (date.toDateString() === today.toDateString()) return "Today";
   if (date.toDateString() === tomorrow.toDateString()) return "Tomorrow";
-  
+
   return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
 }
 
-export function AppointmentCard({ 
-  appointment, 
-  view, 
-  onUpdateStatus = async () => {}, 
-  onReschedule = async () => {},
-  onAddNote = async () => {},
+export function AppointmentCard({
+  appointment,
+  view,
+  onUpdateStatus = async () => { },
+  onReschedule = async () => { },
+  onAddNote = async () => { },
   isSelected = false,
   onSelect
 }: AppointmentCardProps) {
@@ -100,9 +100,8 @@ export function AppointmentCard({
   // List view
   return (
     <>
-      <div className={`group bg-white border-2 rounded-xl p-5 hover:shadow-lg transition-all duration-200 ${
-        isSelected ? "border-blue-500 bg-blue-50" : "border-gray-200 hover:border-blue-300"
-      }`}>
+      <div className={`group bg-white border-2 rounded-xl p-5 hover:shadow-lg transition-all duration-200 ${isSelected ? "border-blue-500 bg-blue-50" : "border-gray-200 hover:border-blue-300"
+        }`}>
         <div className="flex items-start gap-4">
           {onSelect && (
             <div className="flex items-center pt-1">
@@ -120,7 +119,7 @@ export function AppointmentCard({
             <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center flex-shrink-0 shadow-lg">
               <Calendar className="w-7 h-7 text-white" />
             </div>
-            
+
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-3 mb-2">
                 <h3 className="font-bold text-gray-900 text-lg">{appointment.patientName}</h3>
@@ -128,7 +127,7 @@ export function AppointmentCard({
                   {appointment.status}
                 </Badge>
               </div>
-              
+
               <div className="grid grid-cols-1 md:grid-cols-3 gap-3 text-sm">
                 <div className="flex items-center gap-2 text-gray-600">
                   <Clock className="w-4 h-4 text-gray-400" />
@@ -136,12 +135,12 @@ export function AppointmentCard({
                   <span className="text-gray-400">•</span>
                   <span>{formatDate(appointment.date)}</span>
                 </div>
-                
+
                 <div className="flex items-center gap-2 text-gray-600">
                   <User className="w-4 h-4 text-gray-400" />
                   <span>{appointment.doctor}</span>
                 </div>
-                
+
                 <div className="flex items-center gap-2 text-gray-600">
                   <span className="text-gray-400">Type:</span>
                   <span className="font-medium">{appointment.type}</span>
@@ -159,7 +158,7 @@ export function AppointmentCard({
             >
               <ExternalLink className="w-5 h-5" />
             </Link>
-            
+
             <button
               onClick={(e) => {
                 e.stopPropagation();
@@ -181,6 +180,17 @@ export function AppointmentCard({
             >
               <MoreVertical className="w-5 h-5" />
             </button>
+
+            {appointment.status === "confirmed" && (
+              <Link
+                href={`/appointments/${appointment.id}/visit`}
+                className="p-2 text-emerald-500 hover:text-emerald-700 hover:bg-emerald-50 rounded-lg transition-colors border border-emerald-100 bg-emerald-50/20"
+                title="Patient Visit Form"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <Stethoscope className="w-5 h-5" />
+              </Link>
+            )}
           </div>
         </div>
       </div>

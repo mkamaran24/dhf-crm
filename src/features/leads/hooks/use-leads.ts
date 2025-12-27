@@ -8,22 +8,23 @@ export function useLeads() {
   const [leads, setLeads] = useState<Lead[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
-  const [filters, setFilters] = useState<LeadFilters>({});
-  
+  const [filters, setFilters] = useState<LeadFilters>({ dateRange: 'today' });
+
   const debouncedSearch = useDebounce(searchQuery, 500);
   const { pagination, updatePagination, resetPagination, setPage } = usePagination(20);
 
   const fetchLeads = useCallback(async () => {
     setIsLoading(true);
-    
+
     try {
       const data = await leadsService.getLeads({
         page: pagination.page,
         limit: pagination.limit,
         search: debouncedSearch,
         status: filters.status,
+        dateRange: filters.dateRange,
       });
-      
+
       setLeads(data.leads);
       updatePagination(data.pagination);
     } catch (error) {
@@ -39,13 +40,13 @@ export function useLeads() {
 
   useEffect(() => {
     resetPagination();
-  }, [debouncedSearch, filters.status, resetPagination]);
+  }, [debouncedSearch, filters.status, filters.dateRange, resetPagination]);
 
-  const updateLeadStatus = async (leadId: string, status: LeadStatus) => {
-    setLeads(leads.map(l => l.id === leadId ? { ...l, status } : l));
-    
+  const updateLeadStatus = async (leadId: string, status: LeadStatus, followUpDate?: string) => {
+    setLeads(leads.map(l => l.id === leadId ? { ...l, status, followUpDate } : l));
+
     try {
-      await leadsService.updateLeadStatus(leadId, status);
+      await leadsService.updateLeadStatus(leadId, status, followUpDate);
     } catch (error) {
       console.error("Error updating lead status:", error);
       fetchLeads();
@@ -54,10 +55,10 @@ export function useLeads() {
 
   const deleteLead = async (leadId: string) => {
     setLeads(leads.filter(l => l.id !== leadId));
-    
+
     try {
       await leadsService.deleteLead(leadId);
-      
+
       if (leads.length === 1 && pagination.page > 1) {
         setPage(pagination.page - 1);
       } else {
@@ -73,9 +74,13 @@ export function useLeads() {
     setFilters(prev => ({ ...prev, status: status as LeadStatus || undefined }));
   };
 
+  const setDateRangeFilter = (dateRange: LeadFilters['dateRange']) => {
+    setFilters(prev => ({ ...prev, dateRange }));
+  };
+
   const clearFilters = () => {
     setSearchQuery("");
-    setFilters({});
+    setFilters({ dateRange: 'today' });
   };
 
   return {
@@ -86,6 +91,7 @@ export function useLeads() {
     pagination,
     setSearchQuery,
     setStatusFilter,
+    setDateRangeFilter,
     clearFilters,
     updateLeadStatus,
     deleteLead,

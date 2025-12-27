@@ -383,383 +383,357 @@ export default function CreateLeadPage() {
           </CardHeader>
           <CardContent className="p-6 space-y-8">
             {/* Section 1: Budget & Referral */}
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-              {/* Left Side: Budget (Takes 2 columns) */}
-              <div className="lg:col-span-2 bg-gray-50 rounded-xl p-4 border border-gray-200">
-                <label className="block text-sm font-semibold text-gray-900 mb-4">
-                  Budget Range (IQD)
-                </label>
+            {/* Section 1: Financial & Referral Distribution (50/50 Grid) */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+              {/* Left Side: Budget Slider (Standardized Style) */}
+              <div className="bg-white rounded-xl p-5 border border-gray-200 shadow-sm relative group">
+                <div className="flex items-center justify-between mb-5 border-b border-gray-100 pb-3">
+                  <label className="block text-sm font-medium text-gray-900 uppercase tracking-tight flex items-center gap-2">
+                    <DollarSign className="w-4 h-4 text-blue-600" />
+                    Estimated Budget
+                  </label>
+                  <span className="text-[10px] font-medium text-slate-400 uppercase tracking-widest bg-slate-50 px-2 py-1 rounded-md border border-slate-100">IQD Range</span>
+                </div>
 
-                <div className="space-y-4">
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-xs font-medium text-gray-600 mb-1">Minimum</label>
-                      <div className="relative">
-                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-xs text-gray-500">IQD</span>
-                        <Input
-                          type="number"
-                          value={formData.budgetMin}
-                          onChange={(e) => {
-                            const val = Math.max(BUDGET_MIN, Math.min(Number(e.target.value), formData.budgetMax - 100000));
-                            setFormData(prev => ({ ...prev, budgetMin: val }));
-                          }}
-                          className="pl-10 py-1.5 text-sm h-9"
-                          min={BUDGET_MIN}
-                          max={formData.budgetMax - 100000}
-                          step={100000}
-                        />
-                      </div>
-                    </div>
-                    <div>
-                      <label className="block text-xs font-medium text-gray-600 mb-1">Maximum</label>
-                      <div className="relative">
-                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-xs text-gray-500">IQD</span>
-                        <Input
-                          type="number"
-                          value={formData.budgetMax}
-                          onChange={(e) => {
-                            const val = Math.min(BUDGET_MAX, Math.max(Number(e.target.value), formData.budgetMin + 100000));
-                            setFormData(prev => ({ ...prev, budgetMax: val }));
-                          }}
-                          className="pl-10 py-1.5 text-sm h-9"
-                          min={formData.budgetMin + 100000}
-                          max={BUDGET_MAX}
-                          step={100000}
-                        />
-                      </div>
+                <div className="space-y-6 px-1">
+                  <div className="flex justify-between items-center mb-1">
+                    <span className="text-[10px] font-medium text-gray-400 uppercase tracking-widest">Target Investment</span>
+                    <div className="text-blue-600 px-3 py-1 rounded-lg text-[11px] font-medium border border-blue-100 bg-blue-50">
+                      {formData.budgetMin.toLocaleString()} - {formData.budgetMax.toLocaleString()} IQD
                     </div>
                   </div>
 
-                  <div className="px-2">
-                    <Slider
-                      getAriaLabel={() => 'Budget range'}
-                      value={[formData.budgetMin, formData.budgetMax]}
-                      onChange={(event: Event, newValue: number | number[], activeThumb: number) => {
-                        if (Array.isArray(newValue)) {
-                          const minDistance = 100000;
-                          if (activeThumb === 0) {
-                            setFormData(prev => ({
-                              ...prev,
-                              budgetMin: Math.min(newValue[0], prev.budgetMax - minDistance)
-                            }));
-                          } else {
-                            setFormData(prev => ({
-                              ...prev,
-                              budgetMax: Math.max(newValue[1], prev.budgetMin + minDistance)
-                            }));
-                          }
+                  <Slider
+                    getAriaLabel={() => 'Budget range'}
+                    value={[formData.budgetMin, formData.budgetMax]}
+                    onChange={(event: Event, newValue: number | number[], activeThumb: number) => {
+                      if (Array.isArray(newValue)) {
+                        const minDistance = 100000;
+                        if (activeThumb === 0) {
+                          setFormData(prev => ({
+                            ...prev,
+                            budgetMin: Math.min(newValue[0], prev.budgetMax - minDistance)
+                          }));
+                        } else {
+                          setFormData(prev => ({
+                            ...prev,
+                            budgetMax: Math.max(newValue[1], prev.budgetMin + minDistance)
+                          }));
                         }
-                      }}
-                      valueLabelDisplay="auto"
-                      valueLabelFormat={(value) => `${value.toLocaleString()} IQD`}
-                      min={BUDGET_MIN}
-                      max={BUDGET_MAX}
-                      step={100000}
-                      disableSwap
-                      size="small"
-                      sx={{
-                        color: '#6b7280',
-                        '& .MuiSlider-thumb': {
-                          backgroundColor: '#374151',
-                          border: '2px solid white',
-                          width: 16,
-                          height: 16,
-                          '&:hover': {
-                            boxShadow: '0 0 0 8px rgba(55, 65, 81, 0.16)',
-                          },
+                      }
+                    }}
+                    valueLabelDisplay="auto"
+                    valueLabelFormat={(value) => `${value.toLocaleString()} IQD`}
+                    min={BUDGET_MIN}
+                    max={BUDGET_MAX}
+                    step={500000}
+                    disableSwap
+                    sx={{
+                      color: '#2563eb',
+                      height: 6,
+                      '& .MuiSlider-thumb': {
+                        width: 18,
+                        height: 18,
+                        backgroundColor: '#fff',
+                        border: '3px solid currentColor',
+                        '&:hover, &.Mui-focusVisible, &.Mui-active': {
+                          boxShadow: '0px 0px 0px 6px rgba(37, 99, 235, 0.12)',
                         },
-                        '& .MuiSlider-track': {
-                          backgroundColor: '#9ca3af',
-                        },
-                        '& .MuiSlider-rail': {
-                          backgroundColor: '#e5e7eb',
-                        },
-                      }}
-                    />
-                    <div className="flex justify-between text-[10px] text-gray-500 mt-1">
-                      <span>{BUDGET_MIN.toLocaleString()} IQD</span>
-                      <span className="font-medium text-gray-700">
-                        {formData.budgetMin.toLocaleString()} - {formData.budgetMax.toLocaleString()} IQD
-                      </span>
-                      <span>{BUDGET_MAX.toLocaleString()} IQD</span>
-                    </div>
+                      },
+                      '& .MuiSlider-rail': {
+                        opacity: 0.1,
+                        backgroundColor: '#94a3b8',
+                      },
+                      '& .MuiSlider-track': {
+                        border: 'none',
+                        height: 6,
+                      },
+                    }}
+                  />
+
+                  <div className="flex justify-between text-[10px] font-medium text-slate-400 uppercase tracking-widest">
+                    <span>MIN: {BUDGET_MIN.toLocaleString()}</span>
+                    <span>MAX: {BUDGET_MAX.toLocaleString()}</span>
                   </div>
                 </div>
               </div>
 
-              {/* Right Side: Referral & Doctors */}
-              <div className="space-y-4">
-                <Select
-                  label="Referral Source"
-                  name="referralSource"
-                  value={formData.referralSource}
-                  onChange={handleChange}
-                  options={referralOptions}
-                />
+              {/* Right Side: Referral & Doctors (Standardized Style) */}
+              <div className="bg-white rounded-xl p-5 border border-gray-200 shadow-sm flex flex-col justify-center">
+                <div className="space-y-4">
+                  <Select
+                    label="Referral Source"
+                    name="referralSource"
+                    value={formData.referralSource}
+                    onChange={handleChange}
+                    options={referralOptions}
+                  />
 
-                {isPersonReferral && (
-                  <div className="space-y-4 p-3 bg-gray-50 rounded-lg border border-gray-100">
-                    <Input
-                      label="Referral Person Name"
-                      name="referralPersonName"
-                      value={formData.referralPersonName}
-                      onChange={handleChange}
-                      placeholder="Enter name"
-                      className="h-9 text-sm"
-                    />
-                    <Input
-                      label="Referral Person Phone"
-                      name="referralPersonPhone"
-                      type="tel"
-                      value={formData.referralPersonPhone}
-                      onChange={handleChange}
-                      placeholder="+964..."
-                      icon={<Phone className="w-3 h-3" />}
-                      className="h-9 text-sm"
-                    />
-                  </div>
-                )}
+                  <Input
+                    label="Previous Doctors"
+                    name="previousDoctors"
+                    value={formData.previousDoctors}
+                    onChange={handleChange}
+                    placeholder="Previous doctor/clinic..."
+                    icon={<Users className="w-4 h-4" />}
+                  />
 
-                <Input
-                  label="Previous Doctors"
-                  name="previousDoctors"
-                  value={formData.previousDoctors}
-                  onChange={handleChange}
-                  placeholder="Dr. Name..."
-                />
+                  {isPersonReferral && (
+                    <div className="space-y-4 p-4 bg-slate-50 rounded-xl border border-slate-200 animate-in slide-in-from-top-2">
+                      <p className="text-[10px] font-medium text-slate-400 uppercase tracking-widest mb-1">Referral Link</p>
+                      <div className="grid grid-cols-2 gap-4">
+                        <Input
+                          label="Person Name"
+                          name="referralPersonName"
+                          value={formData.referralPersonName}
+                          onChange={handleChange}
+                          placeholder="Name"
+                          className="h-9 text-sm"
+                        />
+                        <Input
+                          label="Person Phone"
+                          name="referralPersonPhone"
+                          type="tel"
+                          value={formData.referralPersonPhone}
+                          onChange={handleChange}
+                          placeholder="+964..."
+                          className="h-9 text-sm"
+                        />
+                      </div>
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
 
-            <div className="border-t border-gray-100 pt-8 mt-8">
-              <div className="space-y-6">
-                {/* Decision Influencers & Pain Points - Side by Side */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div className="bg-gray-50 rounded-xl p-4 border border-gray-200">
-                    <h3 className="text-sm font-semibold text-gray-900 mb-3 flex items-center gap-2">
-                      <Users className="w-4 h-4 text-gray-600" />
+            {/* Section 2: Engagement Insights */}
+            <div className="space-y-6">
+              {/* Decision Influencers & Pain Points - Side by Side */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="bg-white rounded-xl p-5 border border-gray-200 shadow-sm relative group transition-all hover:shadow-md">
+                  <div className="flex items-center justify-between mb-4 border-b border-gray-100 pb-2">
+                    <h3 className="text-sm font-medium text-gray-900 uppercase tracking-tight flex items-center gap-2">
+                      <Users className="w-4 h-4 text-blue-600" />
                       Decision Influencers
                     </h3>
-                    <div className="flex flex-wrap gap-2">
-                      {DECISION_INFLUENCERS.map(influencer => (
-                        <button
-                          key={influencer}
-                          type="button"
-                          onClick={() => handleCheckboxChange("decisionInfluencers", influencer)}
-                          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-xs transition-all duration-200 ${formData.decisionInfluencers.includes(influencer)
-                            ? "border-gray-500 bg-white shadow-sm ring-1 ring-gray-200"
-                            : "border-gray-200 bg-white hover:border-gray-300"
-                            }`}
-                        >
-                          <div className={`w-3.5 h-3.5 rounded border flex items-center justify-center transition-all ${formData.decisionInfluencers.includes(influencer)
-                            ? "border-gray-800 bg-gray-800"
-                            : "border-gray-300 bg-white"
-                            }`}>
-                            {formData.decisionInfluencers.includes(influencer) && (
-                              <CheckCircle2 className="w-2.5 h-2.5 text-white" />
-                            )}
-                          </div>
-                          <span className="font-medium text-gray-700">{influencer}</span>
-                        </button>
-                      ))}
-                    </div>
                   </div>
+                  <div className="flex flex-wrap gap-2">
+                    {DECISION_INFLUENCERS.map(influencer => (
+                      <button
+                        key={influencer}
+                        type="button"
+                        onClick={() => handleCheckboxChange("decisionInfluencers", influencer)}
+                        className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-xs transition-all duration-200 ${formData.decisionInfluencers.includes(influencer)
+                          ? "border-blue-500 bg-blue-50/50 shadow-sm"
+                          : "border-gray-200 bg-white hover:border-gray-300"
+                          }`}
+                      >
+                        <div className={`w-3.5 h-3.5 rounded border flex items-center justify-center transition-all ${formData.decisionInfluencers.includes(influencer)
+                          ? "border-blue-600 bg-blue-600"
+                          : "border-gray-300 bg-white"
+                          }`}>
+                          {formData.decisionInfluencers.includes(influencer) && (
+                            <CheckCircle2 className="w-2.5 h-2.5 text-white" />
+                          )}
+                        </div>
+                        <span className={`font-medium ${formData.decisionInfluencers.includes(influencer) ? "text-blue-700" : "text-gray-700"}`}>{influencer}</span>
+                      </button>
+                    ))}
+                  </div>
+                </div>
 
-                  <div className="bg-gray-50 rounded-xl p-4 border border-gray-200">
-                    <h3 className="text-sm font-semibold text-gray-900 mb-3 flex items-center gap-2">
-                      <AlertCircle className="w-4 h-4 text-gray-600" />
+                <div className="bg-white rounded-xl p-5 border border-gray-200 shadow-sm relative group transition-all hover:shadow-md">
+                  <div className="flex items-center justify-between mb-4 border-b border-gray-100 pb-2">
+                    <h3 className="text-sm font-medium text-gray-900 uppercase tracking-tight flex items-center gap-2">
+                      <AlertCircle className="w-4 h-4 text-blue-600" />
                       Pain Points
                     </h3>
-                    <div className="flex flex-wrap gap-2">
-                      {PAIN_POINTS.map(painPoint => (
+                  </div>
+                  <div className="flex flex-wrap gap-2">
+                    {PAIN_POINTS.map(painPoint => (
+                      <button
+                        key={painPoint}
+                        type="button"
+                        onClick={() => handleCheckboxChange("painPoints", painPoint)}
+                        className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-xs transition-all duration-200 ${formData.painPoints.includes(painPoint)
+                          ? "border-blue-500 bg-blue-50/50 shadow-sm"
+                          : "border-gray-200 bg-white hover:border-gray-300"
+                          }`}
+                      >
+                        <div className={`w-3.5 h-3.5 rounded border flex items-center justify-center transition-all ${formData.painPoints.includes(painPoint)
+                          ? "border-blue-600 bg-blue-600"
+                          : "border-gray-300 bg-white"
+                          }`}>
+                          {formData.painPoints.includes(painPoint) && (
+                            <CheckCircle2 className="w-2.5 h-2.5 text-white" />
+                          )}
+                        </div>
+                        <span className={`font-medium ${formData.painPoints.includes(painPoint) ? "text-blue-700" : "text-gray-700"}`}>{painPoint}</span>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              {/* Knowledge & Commit Level - Side by Side */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="bg-white rounded-xl p-5 border border-gray-200 shadow-sm transition-all hover:shadow-md">
+                  <div className="flex items-center justify-between mb-4 border-b border-gray-100 pb-2">
+                    <h3 className="text-sm font-medium text-gray-900 uppercase tracking-tight flex items-center gap-2">
+                      <Star className="w-4 h-4 text-blue-600" />
+                      Knowledge Rating
+                    </h3>
+                  </div>
+                  <div className="flex items-center justify-center py-2 relative">
+                    <div className="flex items-center gap-2">
+                      {[1, 2, 3, 4, 5].map((star) => (
                         <button
-                          key={painPoint}
+                          key={star}
                           type="button"
-                          onClick={() => handleCheckboxChange("painPoints", painPoint)}
-                          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-xs transition-all duration-200 ${formData.painPoints.includes(painPoint)
-                            ? "border-gray-500 bg-white shadow-sm ring-1 ring-gray-200"
-                            : "border-gray-200 bg-white hover:border-gray-300"
-                            }`}
+                          onClick={() => handleStarClick(star)}
+                          className="transition-transform duration-200 hover:scale-110 active:scale-95 p-1 group"
                         >
-                          <div className={`w-3.5 h-3.5 rounded border flex items-center justify-center transition-all ${formData.painPoints.includes(painPoint)
-                            ? "border-gray-800 bg-gray-800"
-                            : "border-gray-300 bg-white"
-                            }`}>
-                            {formData.painPoints.includes(painPoint) && (
-                              <CheckCircle2 className="w-2.5 h-2.5 text-white" />
-                            )}
-                          </div>
-                          <span className="font-medium text-gray-700">{painPoint}</span>
+                          <Star
+                            className={`w-7 h-7 ${star <= formData.knowledgeRating
+                              ? "fill-yellow-400 text-yellow-400"
+                              : "fill-gray-50 text-gray-200 group-hover:text-yellow-200"
+                              } transition-all duration-200`}
+                          />
                         </button>
                       ))}
                     </div>
+                    <div className="absolute right-0 top-1/2 -translate-y-1/2 text-[11px] font-medium text-blue-600 bg-blue-50 px-2 py-1 rounded-lg border border-blue-100">
+                      {formData.knowledgeRating}/5
+                    </div>
                   </div>
                 </div>
 
-                {/* Knowledge & Commit Level - Side by Side */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div className="bg-gray-50 rounded-xl p-4 border border-gray-200">
-                    <h3 className="text-sm font-semibold text-gray-900 mb-3 flex items-center gap-2">
-                      <Star className="w-4 h-4 text-gray-600" />
-                      Knowledge Rating
+                <div className="bg-white rounded-xl p-5 border border-gray-200 shadow-sm transition-all hover:shadow-md">
+                  <div className="flex items-center justify-between mb-4 border-b border-gray-100 pb-2">
+                    <h3 className="text-sm font-medium text-gray-900 uppercase tracking-tight flex items-center gap-2">
+                      <Target className="w-4 h-4 text-blue-600" />
+                      Commit Level
                     </h3>
-                    <div className="flex items-center justify-center py-2 relative">
-                      <div className="flex items-center gap-2">
-                        {[1, 2, 3, 4, 5].map((star) => (
-                          <button
-                            key={star}
-                            type="button"
-                            onClick={() => handleStarClick(star)}
-                            className="transition-transform duration-200 hover:scale-110 active:scale-95 p-1 group"
-                          >
-                            <Star
-                              className={`w-8 h-8 ${star <= formData.knowledgeRating
-                                ? "fill-yellow-400 text-yellow-400"
-                                : "fill-gray-100 text-gray-300 group-hover:text-yellow-200"
-                                } transition-all duration-200`}
-                            />
-                          </button>
-                        ))}
+                    <div className="flex items-center gap-1.5">
+                      <span className="text-xs font-medium text-gray-900">{formData.commitLevel}%</span>
+                      <span className={`text-[10px] font-medium px-1.5 py-0.5 rounded-full ${formData.commitLevel >= 80 ? "bg-green-100 text-green-700" :
+                        formData.commitLevel >= 55 ? "bg-blue-100 text-blue-700" :
+                          formData.commitLevel >= 30 ? "bg-yellow-100 text-yellow-700" :
+                            "bg-red-100 text-red-700"
+                        }`}>
+                        {formData.commitLevel >= 80 ? "V.High" :
+                          formData.commitLevel >= 55 ? "High" :
+                            formData.commitLevel >= 30 ? "Med" : "Low"}
+                      </span>
+                    </div>
+                  </div>
+                  <div className="px-2">
+                    <Slider
+                      value={formData.commitLevel}
+                      onChange={(e, value) => {
+                        setFormData(prev => ({ ...prev, commitLevel: value as number }));
+                      }}
+                      valueLabelDisplay="auto"
+                      min={0}
+                      max={100}
+                      size="small"
+                      sx={{
+                        color: formData.commitLevel >= 80 ? '#15803d' :
+                          formData.commitLevel >= 55 ? '#1d4ed8' :
+                            formData.commitLevel >= 30 ? '#a16207' : '#b91c1c',
+                        height: 6,
+                        '& .MuiSlider-thumb': {
+                          width: 16,
+                          height: 16,
+                        },
+                      }}
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Insights Section (Shrunk design) */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {/* Educational Materials */}
+                <div className="rounded-xl border bg-white border-gray-200 shadow-sm transition-all hover:shadow-md">
+                  <div className="p-3 border-b border-gray-100 flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <div className="w-5 h-5 rounded border border-blue-600 bg-blue-600 flex items-center justify-center">
+                        <CheckCircle2 className="w-3 h-3 text-white" />
                       </div>
-                      <div className="absolute right-0 top-1/2 -translate-y-1/2 text-sm font-bold text-gray-900 bg-white px-2 py-1 rounded-lg border border-gray-100 shadow-sm">
-                        {formData.knowledgeRating}/5
-                      </div>
+                      <span className="text-xs font-medium text-gray-900 uppercase tracking-tight">Shared Materials</span>
                     </div>
                   </div>
 
-                  <div className="bg-gray-50 rounded-xl p-4 border border-gray-200">
-                    <div className="flex items-center justify-between mb-4">
-                      <h3 className="text-sm font-semibold text-gray-900 flex items-center gap-2">
-                        <Target className="w-4 h-4 text-gray-600" />
-                        Commit Level
-                      </h3>
-                      <div className="flex items-center gap-2">
-                        <span className="text-sm font-bold text-gray-900">{formData.commitLevel}%</span>
-                        <span className={`text-xs font-bold px-2 py-1 rounded-full ${formData.commitLevel >= 80 ? "bg-green-100 text-green-700" :
-                          formData.commitLevel >= 55 ? "bg-blue-100 text-blue-700" :
-                            formData.commitLevel >= 30 ? "bg-yellow-100 text-yellow-700" :
-                              "bg-red-100 text-red-700"
-                          }`}>
-                          {formData.commitLevel >= 80 ? "Very High" :
-                            formData.commitLevel >= 55 ? "High" :
-                              formData.commitLevel >= 30 ? "Medium" : "Low"}
-                        </span>
-                      </div>
-                    </div>
-                    <div className="px-2">
-                      <Slider
-                        value={formData.commitLevel}
-                        onChange={(e, value) => {
-                          setFormData(prev => ({ ...prev, commitLevel: value as number }));
-                        }}
-                        valueLabelDisplay="auto"
-                        min={0}
-                        max={100}
-                        size="small"
-                        sx={{
-                          color: formData.commitLevel >= 80 ? '#15803d' :
-                            formData.commitLevel >= 55 ? '#1d4ed8' :
-                              formData.commitLevel >= 30 ? '#a16207' : '#b91c1c',
-                          height: 6,
-                          '& .MuiSlider-thumb': {
-                            width: 16,
-                            height: 16,
-                            transition: '0.3s cubic-bezier(.47,1.64,.41,.8)',
-                            '&:before': { boxShadow: '0 2px 12px 0 rgba(0,0,0,0.4)' },
-                            '&:hover, &.Mui-focusVisible': {
-                              boxShadow: '0px 0px 0px 8px rgb(0 0 0 / 16%)',
-                            },
-                            '&.Mui-active': { width: 18, height: 18 },
-                          },
-                          '& .MuiSlider-rail': { opacity: 0.28 },
-                        }}
+                  <div className="p-3 space-y-3">
+                    <div className="space-y-1">
+                      <label className="text-[9px] font-medium text-gray-400 uppercase tracking-widest pl-1">Materials Notes</label>
+                      <Textarea
+                        name="sharedEducationalMaterialsNotes"
+                        value={formData.sharedEducationalMaterialsNotes || ""}
+                        onChange={handleChange}
+                        placeholder="What was shared?"
+                        rows={1}
+                        className="text-[11px] bg-slate-50 min-h-[45px] border-slate-200 rounded-lg p-2"
                       />
                     </div>
-                  </div>
-                </div>
 
-                {/* Toggles Section */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  {/* Educational Materials Toggle */}
-                  <div className={`rounded-xl border transition-all duration-200 ${formData.sharedEducationalMaterials ? "bg-blue-50/50 border-blue-200" : "bg-white border-gray-200"
-                    }`}>
-                    <button
-                      type="button"
-                      onClick={() => handleBooleanChange("sharedEducationalMaterials", !formData.sharedEducationalMaterials)}
-                      className="w-full flex items-center justify-between p-4"
-                    >
-                      <div className="flex items-center gap-3">
-                        <div className={`w-5 h-5 rounded border flex items-center justify-center transition-all ${formData.sharedEducationalMaterials ? "border-blue-600 bg-blue-600" : "border-gray-300"
-                          }`}>
-                          {formData.sharedEducationalMaterials && <CheckCircle2 className="w-3.5 h-3.5 text-white" />}
-                        </div>
-                        <span className="text-sm font-medium text-gray-900">Shared Materials</span>
-                      </div>
-                    </button>
-
-                    {formData.sharedEducationalMaterials && (
-                      <div className="px-4 pb-4 pt-0 space-y-3">
-                        <label className="flex items-center gap-2 p-2 bg-white border border-blue-100 rounded-lg cursor-pointer hover:bg-gray-50 transition-colors">
-                          <Upload className="w-3.5 h-3.5 text-blue-600" />
-                          <span className="text-xs text-gray-700">Upload Files</span>
+                    <div className="space-y-1.5">
+                      <label className="text-[9px] font-medium text-gray-400 uppercase tracking-widest pl-1">Attached Files</label>
+                      <div className="flex flex-col gap-2">
+                        <label className="flex items-center gap-2 p-1.5 bg-blue-50/50 border border-blue-100 border-dashed rounded-lg cursor-pointer hover:bg-blue-50 transition-all group">
+                          <div className="w-6 h-6 rounded bg-blue-100 text-blue-600 flex items-center justify-center group-hover:scale-110 transition-transform">
+                            <Upload className="w-3.5 h-3.5" />
+                          </div>
+                          <span className="text-[10px] font-medium text-blue-700">Add Documents</span>
                           <input type="file" multiple onChange={handleFileUpload} className="hidden" />
                         </label>
 
-                        {formData.sharedEducationalMaterialsFiles?.map((file) => (
-                          <div key={file.id} className="flex items-center justify-between p-2 bg-white rounded border border-gray-100">
-                            <span className="text-xs truncate max-w-[150px]">{file.name}</span>
-                            <button onClick={() => handleRemoveFile(file.id)} className="text-gray-400 hover:text-red-500">
-                              <X className="w-3 h-3" />
-                            </button>
-                          </div>
-                        ))}
-
-                        <Textarea
-                          name="sharedEducationalMaterialsNotes"
-                          value={formData.sharedEducationalMaterialsNotes || ""}
-                          onChange={handleChange}
-                          placeholder="Add notes..."
-                          rows={2}
-                          className="text-xs bg-white min-h-[60px]"
-                        />
+                        <div className="grid grid-cols-1 gap-1">
+                          {formData.sharedEducationalMaterialsFiles?.map((file) => (
+                            <div key={file.id} className="flex items-center justify-between p-1.5 bg-slate-50 rounded-lg border border-slate-100 animate-in fade-in">
+                              <div className="flex items-center gap-2 min-w-0">
+                                <FileText className="w-3 h-3 text-slate-400 flex-shrink-0" />
+                                <span className="text-[10px] font-medium text-slate-600 truncate">{file.name}</span>
+                              </div>
+                              <button onClick={() => handleRemoveFile(file.id)} className="p-1 text-slate-400 hover:text-red-500 rounded transition-all">
+                                <X className="w-3 h-3" />
+                              </button>
+                            </div>
+                          ))}
+                        </div>
                       </div>
-                    )}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Competitors Considered */}
+                <div className="rounded-xl border bg-white border-gray-200 shadow-sm transition-all hover:shadow-md">
+                  <div className="p-3 border-b border-gray-100 flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <div className="w-5 h-5 rounded border border-blue-600 bg-blue-600 flex items-center justify-center">
+                        <CheckCircle2 className="w-3 h-3 text-white" />
+                      </div>
+                      <span className="text-xs font-medium text-gray-900 uppercase tracking-tight">Competitors</span>
+                    </div>
                   </div>
 
-                  {/* Competitors Toggle */}
-                  <div className={`rounded-xl border transition-all duration-200 ${formData.hasCompetitorsConsidered ? "bg-blue-50/50 border-blue-200" : "bg-white border-gray-200"
-                    }`}>
-                    <button
-                      type="button"
-                      onClick={() => handleBooleanChange("hasCompetitorsConsidered", !formData.hasCompetitorsConsidered)}
-                      className="w-full flex items-center justify-between p-4"
-                    >
-                      <div className="flex items-center gap-3">
-                        <div className={`w-5 h-5 rounded border flex items-center justify-center transition-all ${formData.hasCompetitorsConsidered ? "border-blue-600 bg-blue-600" : "border-gray-300"
-                          }`}>
-                          {formData.hasCompetitorsConsidered && <CheckCircle2 className="w-3.5 h-3.5 text-white" />}
-                        </div>
-                        <span className="text-sm font-medium text-gray-900">Competitors Considered</span>
-                      </div>
-                    </button>
-
-                    {formData.hasCompetitorsConsidered && (
-                      <div className="px-4 pb-4 pt-0">
-                        <Textarea
-                          name="competitorsConsidered"
-                          value={formData.competitorsConsidered.join(", ")}
-                          onChange={(e) => {
-                            const value = e.target.value;
-                            setFormData(prev => ({
-                              ...prev,
-                              competitorsConsidered: value ? value.split(",").map(s => s.trim()).filter(s => s) : []
-                            }));
-                          }}
-                          placeholder="e.g. Hospital A, Clinic B"
-                          rows={2}
-                          className="text-xs bg-white min-h-[60px]"
-                        />
-                      </div>
-                    )}
+                  <div className="p-3 space-y-1">
+                    <label className="text-[9px] font-medium text-gray-400 uppercase tracking-widest pl-1">Known Competitors</label>
+                    <Textarea
+                      name="competitorsConsidered"
+                      value={formData.competitorsConsidered.join(", ")}
+                      onChange={(e) => {
+                        const value = e.target.value;
+                        setFormData(prev => ({
+                          ...prev,
+                          competitorsConsidered: value ? value.split(",").map(s => s.trim()).filter(s => s) : []
+                        }));
+                      }}
+                      placeholder="List other clinics..."
+                      rows={4}
+                      className="text-[11px] bg-slate-50 min-h-[108px] border-slate-200 rounded-lg p-2"
+                    />
                   </div>
                 </div>
               </div>
