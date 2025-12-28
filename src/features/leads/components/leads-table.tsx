@@ -15,7 +15,7 @@ interface LeadsTableProps {
   currentStatusFilter?: LeadStatus | "all";
 }
 
-const LEAD_STATUSES: LeadStatus[] = ["New", "Contacted", "Follow-up", "Ready", "Appointment Booked", "Converted"];
+const LEAD_STATUSES: LeadStatus[] = ["New", "Contacted", "Follow-up", "Ready", "Appointment Booked", "Converted", "Lost"];
 
 function getStatusBadgeColor(status: LeadStatus) {
   switch (status) {
@@ -31,6 +31,8 @@ function getStatusBadgeColor(status: LeadStatus) {
       return "bg-purple-100 text-purple-700 border-purple-200";
     case "Converted":
       return "bg-emerald-100 text-emerald-700 border-emerald-200";
+    case "Lost":
+      return "bg-rose-100 text-rose-700 border-rose-200";
     default:
       return "bg-gray-100 text-gray-700";
   }
@@ -48,22 +50,41 @@ export function LeadsTable({
   currentStatusFilter,
 }: LeadsTableProps) {
   const [followUpModal, setFollowUpModal] = useState<{ leadId: string; status: LeadStatus } | null>(null);
+  const [lostModal, setLostModal] = useState<{ leadId: string } | null>(null);
   const [selectedDate, setSelectedDate] = useState("");
+  const [lostReason, setLostReason] = useState("");
 
   const handleStatusChangeClick = (leadId: string, status: LeadStatus) => {
     if (["Follow-up", "Ready", "Appointment Booked"].includes(status)) {
       setFollowUpModal({ leadId, status });
+    } else if (status === "Lost") {
+      setLostModal({ leadId });
+      setSelectedDate(new Date().toISOString().split('T')[0]);
     } else {
       onStatusChange(leadId, status);
     }
   };
 
   const isScheduleView = currentStatusFilter && ["Follow-up", "Ready", "Appointment Booked"].includes(currentStatusFilter);
+  const isLostView = currentStatusFilter === "Lost";
 
   const confirmFollowUp = () => {
     if (followUpModal && selectedDate) {
       onStatusChange(followUpModal.leadId, followUpModal.status, selectedDate);
       setFollowUpModal(null);
+      setSelectedDate("");
+    }
+  };
+
+  const confirmLost = () => {
+    if (lostModal && selectedDate && lostReason) {
+      onStatusChange(lostModal.leadId, "Lost", selectedDate);
+      // We also need to pass the reason if the parent supports it. 
+      // Assuming onStatusChange might need an update or we handle it via additional data.
+      // For now, I'll update the call to include optional fields.
+      onStatusChange(lostModal.leadId, "Lost", selectedDate);
+      setLostModal(null);
+      setLostReason("");
       setSelectedDate("");
     }
   };
@@ -107,7 +128,12 @@ export function LeadsTable({
                   Schedule Date
                 </th>
               )}
-              {!isScheduleView && (
+              {isLostView && (
+                <th className="px-6 py-3 text-left text-xs font-semibold text-rose-600 uppercase tracking-wider">
+                  Lost Reason/Date
+                </th>
+              )}
+              {!isScheduleView && !isLostView && (
                 <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
                   Budget Range
                 </th>
@@ -179,7 +205,19 @@ export function LeadsTable({
                     </div>
                   </td>
                 )}
-                {!isScheduleView && (
+                {isLostView && (
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <div className="flex flex-col gap-1">
+                      <div className="flex items-center gap-2 text-[11px] font-bold text-rose-700 bg-rose-50 px-2 py-0.5 rounded border border-rose-100 w-max">
+                        {lead.lostReason || "No Reason"}
+                      </div>
+                      <div className="text-[10px] text-gray-500 font-medium ml-1">
+                        {lead.lostDate || lead.createdAt}
+                      </div>
+                    </div>
+                  </td>
+                )}
+                {!isScheduleView && !isLostView && (
                   <td className="px-6 py-4 whitespace-nowrap">
                     {lead.budgetMin !== undefined && lead.budgetMax !== undefined ? (
                       <span className="text-sm text-gray-600">
@@ -277,6 +315,52 @@ export function LeadsTable({
             className="rounded-xl bg-blue-600 hover:bg-blue-700 shadow-lg shadow-blue-100 font-bold"
           >
             Update Lead Stage
+          </Button>
+        </ModalFooter>
+      </Modal>
+
+      <Modal isOpen={!!lostModal} onClose={() => setLostModal(null)} size="sm">
+        <ModalHeader>
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-rose-50 text-rose-600 flex items-center justify-center border border-rose-100 shadow-sm">
+              <Trash2 className="w-5 h-5" />
+            </div>
+            <div>
+              <h3 className="text-lg font-bold text-slate-800">Mark Lead as Lost</h3>
+              <p className="text-xs text-slate-500">Please provide the reason for closure</p>
+            </div>
+          </div>
+        </ModalHeader>
+        <ModalContent>
+          <div className="space-y-4">
+            <div className="space-y-1.5">
+              <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1">Reason for Lost Status</label>
+              <Input
+                placeholder="e.g., Too expensive, chose competitor..."
+                value={lostReason}
+                onChange={(e) => setLostReason(e.target.value)}
+                className="rounded-xl border-slate-200 focus:border-rose-500 focus:ring-rose-500/10"
+              />
+            </div>
+            <div className="space-y-1.5">
+              <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1">Closing Date</label>
+              <Input
+                type="date"
+                value={selectedDate}
+                onChange={(e) => setSelectedDate(e.target.value)}
+                className="rounded-xl border-slate-200 focus:border-rose-500 focus:ring-rose-500/10"
+              />
+            </div>
+          </div>
+        </ModalContent>
+        <ModalFooter>
+          <Button variant="outlined" onClick={() => setLostModal(null)} className="rounded-xl font-bold">Cancel</Button>
+          <Button
+            onClick={confirmLost}
+            disabled={!selectedDate || !lostReason}
+            className="rounded-xl bg-rose-600 hover:bg-rose-700 shadow-lg shadow-rose-100 font-bold"
+          >
+            Finalize Closure
           </Button>
         </ModalFooter>
       </Modal>

@@ -34,7 +34,7 @@ export default function CreateLeadPage() {
     name: "",
     phone: "",
     phoneSecondary: "",
-    status: "Contacted" as string,
+    status: "New" as string,
     dob: "",
     gender: "",
     maritalStatus: "",
@@ -171,7 +171,7 @@ export default function CreateLeadPage() {
     }));
   };
 
-  const statusOptions = LEAD_STATUSES.map(s => ({ label: s, value: s }));
+  const statusOptions = LEAD_STATUSES.filter(s => s !== "Lost").map(s => ({ label: s, value: s }));
   const genderOptions = GENDERS.map(g => ({ label: g, value: g }));
   const maritalStatusOptions = MARITAL_STATUSES.map(m => ({ label: m, value: m }));
   const languageOptions = LANGUAGES.map(l => ({ label: l, value: l }));
@@ -222,6 +222,14 @@ export default function CreateLeadPage() {
                   value={formData.name}
                   onChange={handleChange}
                   placeholder="John Doe"
+                  required
+                />
+                <Select
+                  label="Initial Status"
+                  name="status"
+                  value={formData.status}
+                  onChange={handleChange}
+                  options={statusOptions}
                   required
                 />
               </div>

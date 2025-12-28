@@ -4,7 +4,7 @@ import { Search, X, ChevronDown } from "lucide-react";
 import { LeadStatus } from "@/src/shared/types";
 import { LeadFilters } from "../types";
 
-const LEAD_STATUSES: LeadStatus[] = ["New", "Contacted", "Follow-up", "Ready", "Appointment Booked", "Converted"];
+const LEAD_STATUSES: LeadStatus[] = ["New", "Contacted", "Follow-up", "Ready", "Appointment Booked", "Converted", "Lost"];
 
 interface LeadsFiltersProps {
   filters: LeadFilters;

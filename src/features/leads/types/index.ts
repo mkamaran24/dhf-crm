@@ -32,6 +32,8 @@ export interface Lead {
   painPoints?: string[];
   knowledgeRating?: number;
   commitLevel?: number;
+  lostReason?: string;
+  lostDate?: string;
   createdAt: string;
 }
 
@@ -72,4 +74,6 @@ export interface LeadFormData {
   painPoints?: string[];
   knowledgeRating?: number;
   commitLevel?: number;
+  lostReason?: string;
+  lostDate?: string;
 }
