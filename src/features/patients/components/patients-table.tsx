@@ -1,9 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import { Mail, Phone, Calendar, Edit, Trash2, Loader2 } from "lucide-react";
+import { Phone, Calendar, Edit, Trash2, Loader2, History, Stethoscope, CheckCircle2, Clock } from "lucide-react";
 import { Patient } from "../types";
 import { Badge } from "@/src/shared/components/ui";
+import { cn } from "@/src/shared/lib/utils";
 
 interface PatientsTableProps {
   patients: Patient[];
@@ -64,7 +65,7 @@ export function PatientsTable({
                 Contact
               </th>
               <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                Last Visit
+                Next Appointment
               </th>
               <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
                 Status
@@ -85,25 +86,30 @@ export function PatientsTable({
                   </Link>
                 </td>
                 <td className="px-6 py-4">
-                  <div className="space-y-1">
-                    <div className="flex items-center gap-2 text-sm text-gray-600">
-                      <Mail className="w-3.5 h-3.5 text-gray-400" />
-                      <span className="truncate max-w-[200px]">{patient.email}</span>
-                    </div>
-                    <div className="flex items-center gap-2 text-sm text-gray-600">
-                      <Phone className="w-3.5 h-3.5 text-gray-400" />
-                      <span>{patient.phone}</span>
-                    </div>
+                  <div className="flex items-center gap-2 text-sm text-gray-700 font-medium">
+                    <Phone className="w-3.5 h-3.5 text-blue-500" />
+                    <span>{patient.phone}</span>
                   </div>
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap">
-                  {patient.lastVisit ? (
-                    <div className="flex items-center gap-2 text-sm text-gray-600">
-                      <Calendar className="w-3.5 h-3.5 text-gray-400" />
-                      <span>{new Date(patient.lastVisit).toLocaleDateString()}</span>
+                  {patient.appointmentDate ? (
+                    <div className="space-y-1.5">
+                      <div className="flex items-center gap-2 text-xs font-bold text-slate-700">
+                        <Calendar className="w-3.5 h-3.5 text-blue-500" />
+                        <span>{new Date(patient.appointmentDate).toLocaleDateString()}</span>
+                      </div>
+                      <div className={cn(
+                        "flex items-center gap-1.5 px-2 py-0.5 rounded-md border w-max text-[9px] font-black uppercase tracking-wider",
+                        patient.appointmentStatus === 'confirmed'
+                          ? "bg-emerald-50 text-emerald-700 border-emerald-100"
+                          : "bg-amber-50 text-amber-700 border-amber-100"
+                      )}>
+                        {patient.appointmentStatus === 'confirmed' && <CheckCircle2 className="w-2.5 h-2.5" />}
+                        {patient.appointmentStatus || 'Scheduled'}
+                      </div>
                     </div>
                   ) : (
-                    <span className="text-sm text-gray-400">No visits</span>
+                    <span className="text-[10px] font-bold text-slate-300 uppercase tracking-widest italic leading-none">Not Set</span>
                   )}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap">
@@ -113,15 +119,33 @@ export function PatientsTable({
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-right">
                   <div className="flex items-center justify-end gap-2">
+                    {patient.appointmentStatus === 'confirmed' && (
+                      <Link href={`/appointments/${patient.activeAppointmentId || '123'}/visit`}>
+                        <button
+                          className="p-2 text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition-all shadow-sm hover:shadow-blue-100 group/btn animate-in fade-in zoom-in duration-300"
+                          title="Start Clinical Encounter"
+                        >
+                          <Stethoscope className="w-4 h-4 group-hover/btn:scale-110 transition-transform" />
+                        </button>
+                      </Link>
+                    )}
+                    <Link href={`/patients/${patient.id}?tab=visits`}>
+                      <button
+                        className="p-2 text-gray-400 hover:text-emerald-600 hover:bg-emerald-50 rounded-lg transition-colors"
+                        title="Visit history"
+                      >
+                        <History className="w-4 h-4" />
+                      </button>
+                    </Link>
                     <Link href={`/patients/${patient.id}`}>
-                      <button 
+                      <button
                         className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
-                        title="View patient"
+                        title="Edit patient"
                       >
                         <Edit className="w-4 h-4" />
                       </button>
                     </Link>
-                    <button 
+                    <button
                       onClick={() => onDelete(patient.id, `${patient.firstName} ${patient.lastName}`)}
                       className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
                       title="Delete patient"

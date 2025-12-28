@@ -32,8 +32,10 @@ export interface Patient {
   gender: Gender;
   address: string;
   lastVisit?: string;
-  nextVisit?: string;
   status: PatientStatus;
+  appointmentDate?: string;
+  appointmentStatus?: 'scheduled' | 'confirmed' | 'completed' | 'cancelled';
+  activeAppointmentId?: string;
   visits?: Visit[];
   documents?: PatientDocument[];
   createdAt: string;
